@@ -15,6 +15,7 @@ The complete build plan is now organized in the `build-plan/` folder:
 | [04-outputs.md](./build-plan/04-outputs.md) | Phase 3 | Brief generation, sharing |
 | [05-team-polish.md](./build-plan/05-team-polish.md) | Phase 4 | Team, polish, production |
 | [06-launch.md](./build-plan/06-launch.md) | Phase 5 | Launch, first customers |
+| [07-marketing.md](./build-plan/07-marketing.md) | Phase M | Marketing landing page (parallel) |
 | [99-reference.md](./build-plan/99-reference.md) | Reference | Env vars, tests, commands |
 
 ## Quick Start
@@ -30,7 +31,8 @@ The complete build plan is now organized in the `build-plan/` folder:
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Phase 0: Foundation | ✅ Complete | Auth working |
-| Phase 1: Decision Engine | 🎨 Design | UI in Figma/Pencil |
+| Phase 1: Decision Engine | 🎨 Design | Ready to build |
+| Phase M: Marketing Landing | 📝 Spec'd | Can build in parallel |
 | Phase 2: AI Analysis | ⏳ Not Started | |
 | Phase 3: Outputs | ⏳ Not Started | |
 | Phase 4: Team & Polish | ⏳ Not Started | |
@@ -42,7 +44,8 @@ The complete build plan is now organized in the `build-plan/` folder:
 |----------|---------|
 | [CORE_JOURNEY.md](../specs/CORE_JOURNEY.md) | The 9-step evidence-first user journey |
 | [LLM_ORCHESTRATION.md](../specs/LLM_ORCHESTRATION.md) | AI pipeline architecture, costs, schemas |
-| [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md) | Sitemap, components, user journeys |
+| [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md) | Design system, sitemap, components |
+| [MARKETING_LANDING.md](../design/MARKETING_LANDING.md) | Marketing homepage layout, animations, copy |
 | [NAVIGATION_AND_AI.md](../design/NAVIGATION_AND_AI.md) | Navigation patterns, AI UX |
 
 ---

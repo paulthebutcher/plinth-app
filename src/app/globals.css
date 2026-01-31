@@ -83,4 +83,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Marketing */
+  .hero-bg {
+    background: radial-gradient(ellipse at center top, #FFF7ED 0%, #FFFFFF 50%);
+  }
 }
