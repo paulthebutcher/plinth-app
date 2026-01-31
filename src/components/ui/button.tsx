@@ -1,38 +1,44 @@
-import React from 'react'
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'outline'
-  isLoading?: boolean
-}
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "default" | "outline";
+  isLoading?: boolean;
+  asChild?: boolean;
+};
 
-export function Button({ 
-  children, 
-  variant = 'default', 
-  isLoading, 
-  className = '', 
+export function Button({
+  className,
+  variant = "default",
+  isLoading,
+  asChild,
   disabled,
-  ...props 
+  children,
+  ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center px-4 py-2 rounded'
-  const variantStyles = {
-    default: 'bg-blue-600 text-white hover:bg-blue-700',
-    outline: 'border border-gray-300 hover:bg-gray-50'
-  }
-  
+  const Comp: any = asChild ? Slot : "button";
+
+  const base =
+    "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
+  const styles =
+    variant === "outline"
+      ? "border border-current bg-transparent"
+      : "bg-black text-white";
+
   return (
-    <button
-      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
-      disabled={isLoading || disabled}
+    <Comp
+      className={[base, styles, className].filter(Boolean).join(" ")}
+      disabled={asChild ? undefined : disabled || isLoading}
       {...props}
     >
       {isLoading ? (
-        <>
-          <span className="animate-spin mr-2">⌛</span>
-          {children}
-        </>
+        <span className="inline-flex items-center gap-2">
+          <span aria-hidden className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          <span>{children}</span>
+        </span>
       ) : (
         children
       )}
-    </button>
-  )
+    </Comp>
+  );
 }
