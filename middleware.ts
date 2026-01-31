@@ -1,6 +1,20 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Auth routes that don't require authentication
+const publicRoutes = [
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/auth/callback'
+]
+
+// Check if the current route is a public auth route
+const isPublicRoute = (pathname: string) =>
+  publicRoutes.some(route => pathname.startsWith(route))
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: {
