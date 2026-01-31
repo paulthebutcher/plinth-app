@@ -2,7 +2,7 @@
 
 **Goal**: Infrastructure ready, authentication working, basic app shell deployed.
 
-**Status**: 🚧 In Progress
+**Status**: ✅ Complete
 
 ---
 
@@ -229,6 +229,160 @@ Follow the flows described in AUTH_PERMISSIONS.md exactly.
 - Issue: Supabase redirect URL not configured
 - Fix: Added http://localhost:3000/** to Supabase Auth settings
 -->
+```
+
+---
+
+## ⚠️ Schema Corrections Required (Post-Completion)
+
+**Phase 0 was completed with the v1 schema. The following migrations are needed for the v2 evidence-first architecture before starting Phase 1:**
+
+> See [CORE_JOURNEY.md](../../specs/CORE_JOURNEY.md) and [LLM_ORCHESTRATION.md](../../specs/LLM_ORCHESTRATION.md) for the new architecture.
+
+### Migration 002: Add Analysis Tracking to Decisions
+
+```sql
+-- Add analysis flow tracking columns
+ALTER TABLE decisions
+  ADD COLUMN IF NOT EXISTS analysis_status TEXT DEFAULT 'draft'
+    CHECK (analysis_status IN ('draft', 'framing', 'context', 'scanning', 'options', 'mapping', 'scoring', 'recommending', 'complete')),
+  ADD COLUMN IF NOT EXISTS analysis_started_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS analysis_completed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS decision_type TEXT
+    CHECK (decision_type IN ('product_bet', 'market_entry', 'investment', 'platform', 'org_model')),
+  ADD COLUMN IF NOT EXISTS time_horizon TEXT
+    CHECK (time_horizon IN ('3-6_months', '6-12_months', '1-2_years', '2+_years')),
+  ADD COLUMN IF NOT EXISTS reversibility INTEGER CHECK (reversibility BETWEEN 1 AND 5),
+  ADD COLUMN IF NOT EXISTS stakes INTEGER CHECK (stakes BETWEEN 1 AND 5),
+  ADD COLUMN IF NOT EXISTS scope INTEGER CHECK (scope BETWEEN 1 AND 5),
+  ADD COLUMN IF NOT EXISTS company_context TEXT,
+  ADD COLUMN IF NOT EXISTS falsification_criteria TEXT;
+
+-- Remove old quality_score in favor of confidence
+ALTER TABLE decisions DROP COLUMN IF EXISTS quality_score;
+```
+
+### Migration 003: Create Assumptions Ledger
+
+```sql
+CREATE TABLE IF NOT EXISTS assumptions_ledger (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  decision_id UUID REFERENCES decisions(id) ON DELETE CASCADE NOT NULL,
+  statement TEXT NOT NULL,
+  status TEXT DEFAULT 'declared'
+    CHECK (status IN ('declared', 'implicit', 'verified', 'violated', 'unverified')),
+  source TEXT, -- 'user', 'ai_inferred'
+  linked_option_ids UUID[] DEFAULT '{}',
+  verification_notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE assumptions_ledger ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Org isolation" ON assumptions_ledger
+  FOR ALL USING (decision_id IN (SELECT id FROM decisions WHERE org_id IN
+    (SELECT org_id FROM users WHERE id = auth.uid())));
+```
+
+### Migration 004: Create Decision Changers
+
+```sql
+CREATE TABLE IF NOT EXISTS decision_changers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  decision_id UUID REFERENCES decisions(id) ON DELETE CASCADE NOT NULL,
+  condition TEXT NOT NULL,
+  would_favor TEXT NOT NULL, -- option ID or "reconsider"
+  likelihood TEXT DEFAULT 'medium' CHECK (likelihood IN ('low', 'medium', 'high')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE decision_changers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Org isolation" ON decision_changers
+  FOR ALL USING (decision_id IN (SELECT id FROM decisions WHERE org_id IN
+    (SELECT org_id FROM users WHERE id = auth.uid())));
+```
+
+### Migration 005: Update Evidence for v2
+
+```sql
+ALTER TABLE evidence
+  ADD COLUMN IF NOT EXISTS snippet TEXT,
+  ADD COLUMN IF NOT EXISTS source_title TEXT,
+  ADD COLUMN IF NOT EXISTS source_publisher TEXT,
+  ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS accessed_at TIMESTAMPTZ DEFAULT NOW(),
+  ADD COLUMN IF NOT EXISTS snippet_hash TEXT,
+  ADD COLUMN IF NOT EXISTS signal_type TEXT
+    CHECK (signal_type IN ('market', 'competitor', 'technology', 'regulatory', 'customer', 'financial', 'operational')),
+  ADD COLUMN IF NOT EXISTS confidence JSONB DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS interpretation TEXT,
+  ADD COLUMN IF NOT EXISTS falsification_criteria TEXT,
+  ADD COLUMN IF NOT EXISTS relevance_tags TEXT[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS entity_tags TEXT[] DEFAULT '{}';
+```
+
+### Migration 006: Update Options + Add Scores
+
+```sql
+ALTER TABLE options
+  ADD COLUMN IF NOT EXISTS summary TEXT,
+  ADD COLUMN IF NOT EXISTS commits_to TEXT,
+  ADD COLUMN IF NOT EXISTS deprioritizes TEXT,
+  ADD COLUMN IF NOT EXISTS primary_upside TEXT,
+  ADD COLUMN IF NOT EXISTS primary_risk TEXT,
+  ADD COLUMN IF NOT EXISTS reversibility_level TEXT
+    CHECK (reversibility_level IN ('easily_reversible', 'reversible_with_cost', 'partially_reversible', 'irreversible')),
+  ADD COLUMN IF NOT EXISTS reversibility_explanation TEXT,
+  ADD COLUMN IF NOT EXISTS grounded_in_evidence UUID[] DEFAULT '{}';
+
+CREATE TABLE IF NOT EXISTS option_scores (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  decision_id UUID REFERENCES decisions(id) ON DELETE CASCADE NOT NULL,
+  option_id UUID REFERENCES options(id) ON DELETE CASCADE NOT NULL,
+  overall_score INTEGER CHECK (overall_score BETWEEN 0 AND 100),
+  score_breakdown JSONB DEFAULT '{}',
+  rationale TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(decision_id, option_id)
+);
+
+ALTER TABLE option_scores ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Org isolation" ON option_scores
+  FOR ALL USING (decision_id IN (SELECT id FROM decisions WHERE org_id IN
+    (SELECT org_id FROM users WHERE id = auth.uid())));
+```
+
+### Migration 007: Create Recommendations Table
+
+```sql
+CREATE TABLE IF NOT EXISTS recommendations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  decision_id UUID REFERENCES decisions(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  primary_option_id UUID REFERENCES options(id),
+  hedge_option_id UUID REFERENCES options(id),
+  confidence INTEGER CHECK (confidence BETWEEN 0 AND 100),
+  rationale TEXT,
+  hedge_condition TEXT,
+  monitor_triggers JSONB DEFAULT '[]',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Org isolation" ON recommendations
+  FOR ALL USING (decision_id IN (SELECT id FROM decisions WHERE org_id IN
+    (SELECT org_id FROM users WHERE id = auth.uid())));
+```
+
+### Apply Migrations
+
+```bash
+# Create migration files in supabase/migrations/
+# Then push to Supabase
+npx supabase db push
+
+# Regenerate TypeScript types
+npx supabase gen types typescript --local > src/types/database.ts
 ```
 
 ---

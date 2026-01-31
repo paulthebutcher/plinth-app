@@ -29,12 +29,21 @@ The complete build plan is now organized in the `build-plan/` folder:
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 0: Foundation | 🚧 In Progress | Debugging Supabase auth |
-| Phase 1: Decision Engine | ⏳ Not Started | |
+| Phase 0: Foundation | ✅ Complete | Auth working |
+| Phase 1: Decision Engine | 🎨 Design | UI in Figma/Pencil |
 | Phase 2: AI Analysis | ⏳ Not Started | |
 | Phase 3: Outputs | ⏳ Not Started | |
 | Phase 4: Team & Polish | ⏳ Not Started | |
 | Phase 5: Launch | ⏳ Not Started | |
+
+## Architecture & Design Resources
+
+| Document | Content |
+|----------|---------|
+| [CORE_JOURNEY.md](../specs/CORE_JOURNEY.md) | The 9-step evidence-first user journey |
+| [LLM_ORCHESTRATION.md](../specs/LLM_ORCHESTRATION.md) | AI pipeline architecture, costs, schemas |
+| [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md) | Sitemap, components, user journeys |
+| [NAVIGATION_AND_AI.md](../design/NAVIGATION_AND_AI.md) | Navigation patterns, AI UX |
 
 ---
 

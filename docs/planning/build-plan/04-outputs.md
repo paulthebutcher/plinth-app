@@ -4,37 +4,51 @@
 
 **Status**: ⏳ Not Started
 
+> **Architecture Reference**: See [CORE_JOURNEY.md](../../specs/CORE_JOURNEY.md) Step 8 and [LLM_ORCHESTRATION.md](../../specs/LLM_ORCHESTRATION.md) for brief generation.
+
 ---
 
-## 3.1 Brief Generation (Week 7)
+## Overview: Brief Generation in v2
+
+In the evidence-first architecture, briefs are generated as the **final step of analysis** (Step 8), not as a separate action triggered by quality score. The brief synthesizes:
+
+- Decision framing (question, constraints, stakes)
+- Options considered (all options with rationale)
+- Evidence summary (key evidence with citations)
+- Assumptions ledger (declared, implicit, status)
+- Recommendation (primary + hedge + confidence)
+- Decision changers (conditions that would flip recommendation)
+- Open questions (unresolved unknowns)
+
+---
+
+## 3.1 Brief Display (Week 7)
 
 **Windsurf Prompt:**
 ```
 Read these files:
-- docs/specs/DECISION_FLOW.md (Output Generation section)
-- docs/specs/AI_PROMPTS.md (generate-brief prompt, section 6.1)
-- docs/specs/API_CONTRACTS.md (Outputs API)
-- docs/specs/ASYNC_JOBS.md (brief generation job)
+- docs/specs/CORE_JOURNEY.md (Step 8: Decision Artifact)
+- docs/specs/LLM_ORCHESTRATION.md (Step 8: Brief generation)
+- docs/design/DESIGN_SPEC_V2.md (Brief page)
 
-Create brief generation:
-1. components/canvas/generate-brief-button.tsx - Disabled if quality <80%
-2. components/canvas/incomplete-decision-modal.tsx - Shows what's missing
-3. lib/inngest/functions/brief-generation.ts - Background job
-4. lib/ai/prompts/generate-brief.ts - Prompt from AI_PROMPTS.md
-5. app/api/decisions/[id]/outputs/route.ts - Create/list outputs
-6. components/outputs/brief-preview-modal.tsx - Render markdown preview
+Create brief display components:
+1. app/(dashboard)/decisions/[id]/brief/page.tsx - Brief page
+2. components/outputs/brief-header.tsx - Title, status, meta
+3. components/outputs/brief-section.tsx - Collapsible section
+4. components/outputs/evidence-citation.tsx - Clickable citation link
+5. components/outputs/decision-changers-list.tsx - Conditions that flip rec
 
-Store generated content in outputs table with status tracking.
+Brief is READ-ONLY after generation.
+Show all citations as clickable links to sources.
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 "Generate Brief" button | Visible when quality ≥80% | Component: conditional | |
-| 💻 Block if incomplete | Modal showing missing items | Component: validation | |
-| 💻 Generate brief job | Creates output, runs AI | Integration: job flow | |
-| 💻 Brief generation prompt | Full prompt from AI_PROMPTS.md | Unit: prompt | |
-| 💻 Save brief content | Stores markdown in outputs table | Integration: save | |
-| 💻 Brief preview | Render markdown in modal | Component: preview | |
+| 💻 Brief page route | `/decisions/[id]/brief` works | E2E: navigation | |
+| 💻 Brief header | Shows title, date, owner | Component: header | |
+| 💻 Brief sections | 7 sections per spec | Component: sections | |
+| 💻 Evidence citations | Clickable source links | Component: citations | |
+| 💻 Decision changers | Listed with likelihood | Component: changers | |
 
 ---
 
@@ -42,21 +56,23 @@ Store generated content in outputs table with status tracking.
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/API_CONTRACTS.md (Outputs API - PATCH endpoint).
+Read docs/specs/LLM_ORCHESTRATION.md (Step 8 output format).
 
-Create brief editing:
+Create brief editing (limited):
 1. components/outputs/brief-editor.tsx - Markdown editor
-2. app/api/decisions/[id]/outputs/[outputId]/route.ts - PATCH endpoint
+2. app/api/decisions/[id]/brief/route.ts - GET/PATCH endpoints
 
-Track if brief has been edited (compare content with original).
-Show "Edited" badge if modified.
+Users can edit the brief narrative but NOT the underlying data.
+Track if brief has been manually edited.
+Show "Edited" badge if modified from AI-generated version.
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Edit brief content | Rich text/markdown editor | Component: editor | |
+| 💻 Edit brief content | Markdown editor | Component: editor | |
 | 💻 Save edits | PATCH updates content | Integration: save | |
-| 💻 Version note | Shows "Edited" if modified | Component: indicator | |
+| 💻 Track edits | Shows "Edited" badge | Component: indicator | |
+| 💻 Preserve citations | Citations remain clickable | Component: citations | |
 
 ---
 
@@ -64,22 +80,23 @@ Show "Edited" badge if modified.
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/API_CONTRACTS.md (Public Share API section).
+Read docs/design/DESIGN_SPEC_V2.md (Share page).
 
 Create sharing functionality:
 1. components/outputs/share-toggle.tsx - Enable/disable sharing
 2. components/outputs/copy-link-button.tsx - Copy share URL
-3. app/api/decisions/[id]/outputs/[outputId]/share/route.ts - Toggle sharing
-4. app/(public)/share/[key]/page.tsx - Public share page (no auth required)
+3. app/api/decisions/[id]/share/route.ts - Toggle sharing
+4. app/(public)/share/[key]/page.tsx - Public share page
 
 Generate unique share_key when sharing is enabled.
-Public page should be read-only, nicely formatted.
+Public page is read-only, nicely formatted.
+Include all sections EXCEPT internal notes/assumptions if marked private.
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
 | 💻 Share toggle | Enable/disable sharing | Component: toggle | |
-| 💻 Generate share URL | Creates unique share_key | Integration: key generation | |
+| 💻 Generate share URL | Creates unique share_key | Integration: key | |
 | 💻 Public share page | `/share/[key]` shows brief | E2E: share flow | |
 | 💻 Copy link button | Copies URL to clipboard | Component: copy | |
 | 💻 Revoke sharing | Removes share_key | Integration: revoke | |
@@ -90,39 +107,71 @@ Public page should be read-only, nicely formatted.
 
 **Windsurf Prompt:**
 ```
-Create PDF export functionality:
+Create PDF export:
 1. components/outputs/export-pdf-button.tsx - Trigger export
-2. lib/pdf/generate-brief-pdf.ts - PDF generation using @react-pdf/renderer
-3. app/api/decisions/[id]/outputs/[outputId]/pdf/route.ts - Generate and return PDF
+2. lib/pdf/generate-brief-pdf.ts - PDF generation
+3. app/api/decisions/[id]/brief/pdf/route.ts - Generate PDF
 
-PDF should be cleanly formatted, branded with Plinth logo.
-Match the brief structure from the generate-brief prompt output.
+PDF should include:
+- All brief sections
+- Citations as footnotes
+- Decision changers section
+- Confidence breakdown visualization
+- Clean, professional formatting
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Export to PDF button | Triggers PDF generation | Component: button | |
-| 💻 PDF generation | Clean, branded PDF output | Integration: PDF library | |
+| 💻 Export PDF button | Triggers PDF generation | Component: button | |
+| 💻 PDF generation | All sections included | Integration: PDF | |
+| 💻 Citations as footnotes | Sources listed at end | Integration: format | |
 | 💻 PDF download | Browser downloads file | E2E: download | |
+
+---
+
+## 3.5 Re-run Analysis (Week 7)
+
+**Windsurf Prompt:**
+```
+Create re-run analysis flow:
+1. components/outputs/rerun-analysis-button.tsx - Trigger re-analysis
+2. app/api/decisions/[id]/rerun/route.ts - Start new analysis job
+
+When user clicks "Re-run Analysis":
+1. Confirm action (will replace current results)
+2. Keep original frame + context
+3. Trigger new evidence scan
+4. Replace options, mapping, scoring, recommendation
+5. Generate new brief
+
+Show comparison with previous version if available.
+```
+
+| Task | Acceptance Criteria | Tests | Status |
+|------|---------------------|-------|--------|
+| 💻 Re-run button | Triggers new analysis | Component: button | |
+| 💻 Confirmation modal | Warns about replacement | Component: modal | |
+| 💻 New analysis job | Creates job, runs pipeline | Integration: job | |
+| 💻 Version comparison | Shows diff if available | Component: diff | |
 
 ---
 
 ## Phase 3 Milestone
 
-**Briefs generate, preview, edit, share, export to PDF.**
+**Briefs display, edit, share, export to PDF.**
 
 ### Checklist
-- [ ] "Generate Brief" button appears when quality ≥80%
-- [ ] Shows what's missing if quality <80%
-- [ ] Brief generation job runs successfully
-- [ ] Generated brief displays in preview modal
-- [ ] Can edit brief content with markdown editor
+- [ ] Brief page displays all 7 sections
+- [ ] Citations are clickable and link to sources
+- [ ] Decision changers clearly visible
+- [ ] Can edit brief narrative
 - [ ] Shows "Edited" badge when modified
 - [ ] Can enable/disable public sharing
 - [ ] Public share page works without auth
 - [ ] Can copy share link to clipboard
 - [ ] Can export brief to PDF
-- [ ] PDF is cleanly formatted and branded
+- [ ] PDF includes all sections with citations
+- [ ] Can re-run analysis to update brief
 
 ---
 
@@ -133,8 +182,8 @@ Match the brief structure from the generate-brief prompt output.
 ```
 <!-- Example:
 2024-02-10: PDF generation failing on Vercel
-- Issue: @react-pdf/renderer not working in serverless
-- Fix: Used different PDF library or client-side generation
+- Issue: @react-pdf/renderer memory limits
+- Fix: Switched to puppeteer-based generation
 -->
 ```
 

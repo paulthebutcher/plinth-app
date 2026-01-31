@@ -4,6 +4,8 @@
 
 **Status**: ⏳ Not Started
 
+> **Architecture Reference**: See [DESIGN_SPEC_V2.md](../../design/DESIGN_SPEC_V2.md) for component specs.
+
 ---
 
 ## 4.1 Team Management (Week 8)
@@ -22,16 +24,13 @@
    - Go to Resend → Domains → Add Domain
    - Add your domain (e.g., `myplinth.com`)
    - Add the DNS records Resend provides
-   - Wait for verification (can take a few hours)
-   - For development, you can use Resend's test domain
+   - Wait for verification
 
 3. **Add to Vercel Environment Variables**
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/AUTH_PERMISSIONS.md (invite flow, roles)
-- docs/specs/API_CONTRACTS.md (Organizations API)
+Read docs/design/DESIGN_SPEC_V2.md (Settings pages).
 
 Create team management:
 1. app/(dashboard)/settings/team/page.tsx - Team settings page
@@ -43,7 +42,7 @@ Create team management:
 7. app/api/organizations/members/[id]/route.ts - Update/remove member
 8. app/api/invitations/[token]/accept/route.ts - Accept invitation
 
-Roles: admin, member, viewer (per AUTH_PERMISSIONS.md)
+Roles: admin, member, viewer
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
@@ -61,17 +60,17 @@ Roles: admin, member, viewer (per AUTH_PERMISSIONS.md)
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/API_CONTRACTS.md (Comments API section).
+Read docs/design/DESIGN_SPEC_V2.md (Brief page).
 
 Create commenting system:
-1. components/canvas/comments-panel.tsx - Collapsible sidebar
-2. components/canvas/comment-thread.tsx - Threaded display
-3. components/canvas/comment-form.tsx - Add comment input
-4. components/canvas/comment-target-indicator.tsx - Show what comment targets
-5. app/api/decisions/[id]/comments/route.ts - CRUD endpoints
+1. components/collaboration/comments-panel.tsx - Collapsible sidebar
+2. components/collaboration/comment-thread.tsx - Threaded display
+3. components/collaboration/comment-form.tsx - Add comment input
+4. app/api/decisions/[id]/comments/route.ts - CRUD endpoints
 
-Comments can target: decision, option, evidence, tradeoff, constraint
+Comments can target: decision (general), evidence, option, recommendation
 Support threaded replies via parent_id.
+Show commenter name and timestamp.
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
@@ -80,7 +79,7 @@ Support threaded replies via parent_id.
 | 💻 Add comment | Text input, submit | Component: form | |
 | 💻 Reply to comment | Threaded replies | Component: threading | |
 | 💻 Delete comment | Author/admin can delete | Integration: delete | |
-| 💻 Comment on element | Target specific option/evidence | Component: targeting | |
+| 💻 Comment on element | Target specific item | Component: targeting | |
 
 ---
 
@@ -88,30 +87,29 @@ Support threaded replies via parent_id.
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/ONBOARDING.md for the complete onboarding flow.
+Read docs/design/DESIGN_SPEC_V2.md (Onboarding flow).
 
-Create onboarding experience:
+Create onboarding experience for v2 flow:
 1. components/onboarding/welcome-screen.tsx - Post-signup welcome
-2. components/onboarding/org-setup-form.tsx - Name org, select role
-3. components/onboarding/first-decision-guide.tsx - Guided creation
-4. components/onboarding/feature-tour.tsx - Tooltip tour
-5. lib/utils/onboarding-state.ts - Track completion in user metadata
+2. components/onboarding/org-setup-form.tsx - Name org, role
+3. components/onboarding/first-decision-guide.tsx - Guide through framing
+4. lib/utils/onboarding-state.ts - Track completion in user metadata
 
-5 steps per spec:
-1. Welcome
-2. Organization setup
-3. Select template
-4. Add first option
-5. Activation (complete first decision OR view example)
+Onboarding steps:
+1. Welcome (explain value prop)
+2. Organization setup (name org)
+3. Start first analysis (enter decision question)
+4. Watch analysis run (explain what's happening)
+5. Review results (tour the output)
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
 | 💻 Welcome screen | Post-signup welcome | Component: screen | |
-| 💻 Org setup screen | Name org, select role | Component: form | |
-| 💻 First decision guided | Walk through creating first decision | E2E: onboarding flow | |
-| 💻 Feature tour | Tooltip tour of canvas | Component: tour | |
-| 💻 Track onboarding state | Store completion in user metadata | Integration: state | |
+| 💻 Org setup screen | Name org | Component: form | |
+| 💻 First decision guided | Walk through framing | E2E: onboarding | |
+| 💻 Analysis explainer | Explain what AI is doing | Component: explainer | |
+| 💻 Track onboarding state | Store in user metadata | Integration: state | |
 
 ---
 
@@ -119,12 +117,10 @@ Create onboarding experience:
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/ERROR_STATES.md (error handling patterns)
-- docs/specs/UI_PATTERNS.md (design system)
+Read docs/design/DESIGN_SPEC_V2.md (Design system section).
 
 Polish the UI across the app:
-1. Add empty states to all list components (per ERROR_STATES.md)
+1. Add empty states to all list components
 2. Add skeleton loading states to all pages
 3. Implement toast notifications for success/error
 4. Verify dark mode works everywhere
@@ -133,24 +129,24 @@ Polish the UI across the app:
 
 Create reusable components:
 - components/ui/empty-state.tsx
-- components/ui/skeleton-*.tsx (for each page type)
+- components/ui/skeleton-*.tsx
 - components/ui/error-boundary.tsx
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Empty states | All sections have helpful empty states | Component: empty states | |
+| 💻 Empty states | All sections have helpful empty states | Component: empty | |
 | 💻 Loading skeletons | All pages have skeleton loading | Component: skeletons | |
-| 💻 Error handling | User-friendly error messages | Component: error states | |
-| 💻 Responsive design | Works on tablet (mobile deprioritized) | Manual: responsive check | |
-| 💻 Keyboard navigation | Tab order, shortcuts | Manual: keyboard check | |
-| 💻 Dark mode native | Dark theme applied | Component: theme | |
+| 💻 Error handling | User-friendly error messages | Component: errors | |
+| 💻 Responsive design | Works on tablet | Manual: responsive | |
+| 💻 Keyboard navigation | Tab order, shortcuts | Manual: keyboard | |
+| 💻 Dark mode | Theme applied consistently | Component: theme | |
 
 ---
 
 ## 4.5 Performance & Monitoring (Week 9)
 
-**🔧 External Setup (do this first):**
+**🔧 External Setup:**
 
 1. **Create Sentry Account:**
    - Go to sentry.io → Sign up
@@ -159,39 +155,36 @@ Create reusable components:
    - Add to `.env.local`:
      ```env
      NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
-     SENTRY_AUTH_TOKEN=sntrys_...  # For source maps
+     SENTRY_AUTH_TOKEN=sntrys_...
      ```
 
 2. **Enable Vercel Analytics:**
    - Go to Vercel → Your Project → Analytics tab
    - Click "Enable"
-   - Analytics will start collecting automatically
 
 3. **Add Sentry to Vercel Environment Variables**
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/TESTING_STRATEGY.md for testing approach.
-
 Set up monitoring and optimize performance:
 1. Set up Sentry for error tracking (lib/sentry.ts)
 2. Add Vercel Analytics
-3. Review and optimize database queries (check for N+1)
-4. Configure React Query caching appropriately
+3. Review and optimize database queries
+4. Configure React Query caching
 5. Run Lighthouse audit and fix issues
 
 Create:
 - lib/sentry.ts - Sentry initialization
-- instrumentation.ts - Next.js instrumentation file
+- instrumentation.ts - Next.js instrumentation
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 🔧 Set up Sentry | Errors reported | Integration: error capture | |
+| 🔧 Set up Sentry | Errors reported | Integration: capture | |
 | 🔧 Set up Vercel Analytics | Page views tracked | N/A | |
-| 💻 Optimize queries | N+1 queries fixed | Integration: query count | |
-| 💻 Add caching | React Query caching tuned | Manual: cache behavior | |
-| 💻 Lighthouse audit | Score >80 on all categories | Manual: Lighthouse | |
+| 💻 Optimize queries | No N+1 queries | Integration: query | |
+| 💻 Add caching | React Query tuned | Manual: cache | |
+| 💻 Lighthouse audit | Score >80 | Manual: Lighthouse | |
 
 ---
 
@@ -202,34 +195,24 @@ Create:
 1. **Enable Supabase Point-in-Time Recovery (PITR):**
    - Go to Supabase Dashboard → Database → Backups
    - Enable PITR (requires Pro plan - $25/month)
-   - This enables recovery to any point in time
 
 2. **Create Production Supabase Project (if not done):**
    - Create separate `plinth-production` project
    - Run migrations: `npx supabase db push`
    - Update Vercel production environment variables
 
-3. **Configure Environment Variables in Vercel:**
-   - Ensure all variables have correct values for each environment:
-     - Development: Local/staging values
-     - Preview: Staging values
-     - Production: Production values
-
-4. **Review API Key Permissions:**
+3. **Review API Key Permissions:**
    - OpenAI: Set spending limits
+   - Exa: Check usage limits
    - Firecrawl: Check usage limits
-   - Resend: Verify sending limits
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/SECURITY.md for security requirements.
-
 Prepare for production:
 1. Set up environment variables properly (staging vs prod)
-2. Enable Supabase PITR (Point-in-Time Recovery)
-3. Implement rate limiting per SECURITY.md
-4. Add security headers (CSP, HSTS, etc.)
-5. Create /privacy and /terms pages
+2. Implement rate limiting
+3. Add security headers (CSP, HSTS, etc.)
+4. Create /privacy and /terms pages
 
 Create:
 - middleware.ts updates for security headers
@@ -241,8 +224,8 @@ Create:
 |------|---------------------|-------|--------|
 | 🔧 Environment config | Staging vs prod separated | N/A | |
 | 🔧 Database backups | Supabase PITR enabled | N/A | |
-| 💻 Rate limiting | Implemented per SECURITY.md | Integration: rate limits | |
-| 💻 Security headers | CSP, HSTS, etc. configured | Manual: security check | |
+| 💻 Rate limiting | Implemented | Integration: limits | |
+| 💻 Security headers | CSP, HSTS configured | Manual: security | |
 | 💻 Privacy policy page | `/privacy` exists | N/A | |
 | 💻 Terms of service page | `/terms` exists | N/A | |
 
@@ -257,9 +240,9 @@ Create:
 - [ ] Invitation emails send successfully
 - [ ] New members can accept invitations
 - [ ] Roles (admin/member/viewer) work correctly
-- [ ] Comments work on all elements
+- [ ] Comments work on decisions
 - [ ] Threaded replies work
-- [ ] Onboarding flow guides new users
+- [ ] Onboarding flow guides new users through analysis
 - [ ] All empty states implemented
 - [ ] All loading states implemented
 - [ ] Error handling is user-friendly

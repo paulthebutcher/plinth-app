@@ -18,7 +18,7 @@
 2. **Update DNS Records (at your registrar):**
    - Add `A` record: `76.76.21.21` (or Vercel's current IP)
    - Add `CNAME` record: `cname.vercel-dns.com` for `www`
-   - Wait for DNS propagation (up to 48 hours, usually minutes)
+   - Wait for DNS propagation
 
 3. **Update Supabase Auth Redirect URLs:**
    - Go to Supabase → Authentication → URL Configuration
@@ -44,13 +44,9 @@ Final launch preparations:
 3. Verify SSL certificate
 4. Deploy main branch to production
 5. Verify Sentry and analytics are receiving data
-6. Create a demo account with seeded example decision
+6. Create a demo account with completed example analysis
 
-Test all critical paths manually:
-- Signup → Dashboard
-- Create decision → Add content → Generate brief
-- Share brief → View public link
-- Invite member → Accept → Access shared decision
+Test all critical paths manually (see checklist below).
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
@@ -67,8 +63,8 @@ Test all critical paths manually:
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Create demo account | seeded with example decision | N/A | |
-| 🔧 Onboard 3-5 users | Real users complete first decision | N/A | |
+| 💻 Create demo account | Seeded with completed analysis | N/A | |
+| 🔧 Onboard 3-5 users | Real users complete first analysis | N/A | |
 | 🔧 Collect feedback | Document issues, improvements | N/A | |
 | 💻 Fix critical bugs | P0 bugs fixed within 24h | N/A | |
 
@@ -93,18 +89,10 @@ Test all critical paths manually:
 ### Launch Day
 
 - [ ] Deploy main branch to production
-- [ ] Verify all critical paths work:
-  - [ ] Signup flow
-  - [ ] Login flow
-  - [ ] Create decision
-  - [ ] Add options/evidence/constraints/tradeoffs
-  - [ ] Generate brief
-  - [ ] Share brief publicly
-  - [ ] Invite team member
-  - [ ] Accept invitation
+- [ ] Verify all critical paths work (see below)
 - [ ] Monitor Sentry for errors
 - [ ] Monitor Vercel Analytics for traffic
-- [ ] Create demo account with example decision
+- [ ] Create demo account with example analysis
 
 ### Post-Launch (First Week)
 
@@ -118,22 +106,24 @@ Test all critical paths manually:
 
 ## Critical Path Testing
 
-### Happy Path: New User
+### Happy Path: New User (Evidence-First Flow)
 
 1. Visit myplinth.com
 2. Click "Sign Up"
 3. Enter email/password
 4. Verify email (or skip if disabled)
-5. Complete onboarding
-6. Create first decision from template
-7. Add 2+ options with pros/cons
-8. Add 3+ evidence items
-9. Add constraints
-10. Acknowledge tradeoffs
-11. Set recommendation
-12. Generate brief
-13. Share brief publicly
-14. Copy and visit share link
+5. Complete onboarding (name org)
+6. Click "Analyze a Decision"
+7. **Frame**: Enter decision question, set type/horizon/stakes
+8. **Context**: Add constraints (optional), click "Start Analysis"
+9. **Watch**: See live progress as AI scans evidence
+10. **Review Options**: See AI-generated options with evidence grounding
+11. **Review Mapping**: See evidence supporting/contradicting each option
+12. **Review Scoring**: See confidence breakdown (6 factors)
+13. **Review Recommendation**: See primary + hedge + decision changers
+14. View generated brief
+15. Share brief publicly
+16. Copy and visit share link
 
 ### Happy Path: Invited User
 
@@ -142,7 +132,7 @@ Test all critical paths manually:
 3. Create account (or login if existing)
 4. Land on dashboard with org already set
 5. View shared decisions
-6. Add comment
+6. Add comment on decision
 
 ### Error Cases to Test
 
@@ -152,8 +142,9 @@ Test all critical paths manually:
 - [ ] Expired invitation link
 - [ ] Invalid share link
 - [ ] Session expiry mid-action
-- [ ] Network error during save
-- [ ] AI service timeout
+- [ ] Network error during analysis
+- [ ] AI service timeout (should show partial results)
+- [ ] Scraping failures (should continue with available data)
 
 ---
 
@@ -164,6 +155,8 @@ Test all critical paths manually:
 | Vercel | Deployment, DNS | support@vercel.com |
 | Supabase | Database, Auth | support@supabase.io |
 | OpenAI | API limits | platform.openai.com/help |
+| Exa | Search API | support@exa.ai |
+| Firecrawl | Scraping API | support@firecrawl.dev |
 | Resend | Email delivery | support@resend.com |
 | Inngest | Background jobs | support@inngest.com |
 
@@ -194,8 +187,8 @@ If critical issues discovered post-launch:
 
 ### Success Metrics
 
-- [ ] 3-5 users complete their first decision
-- [ ] Average quality score >70% on completed decisions
+- [ ] 3-5 users complete their first analysis
+- [ ] Average confidence score >60% on recommendations
 - [ ] At least 1 decision brief shared
 - [ ] User feedback NPS >7
 - [ ] Zero P0 bugs after first week

@@ -1,313 +1,316 @@
-# Phase 1: Core Decision Engine (Weeks 2-4)
+# Phase 1: Decision Engine — User Input Steps (Weeks 2-3)
 
-**Goal**: Full decision workflow functional without AI features.
+**Goal**: User can frame a decision and provide context. AI analysis pipeline ready to trigger.
 
 **Status**: ⏳ Not Started
 
+> **Architecture Reference**: See [CORE_JOURNEY.md](../../specs/CORE_JOURNEY.md) for the full 9-step flow.
+
 ---
 
-## 1.1 Decision CRUD (Week 2)
+## Overview: The New Evidence-First Flow
+
+```
+User Input (This Phase)          AI Analysis (Phase 2)
+┌─────────────────────┐          ┌─────────────────────┐
+│ 0. Entry            │          │ 3. Evidence Scan    │
+│ 1. Decision Frame   │    →     │ 4. Option Gen       │
+│ 2. Context Anchor   │          │ 5. Evidence Map     │
+└─────────────────────┘          │ 6. Confidence Score │
+                                 │ 7. Recommendation   │
+                                 │ 8. Brief Gen        │
+                                 └─────────────────────┘
+```
+
+**Key Principle**: Evidence is gathered BEFORE generating options to prevent narrative anchoring.
+
+---
+
+## 1.1 Decision List & Dashboard (Week 2)
 
 **Windsurf Prompt:**
 ```
 Read these files:
-- docs/specs/DECISION_FLOW.md (core decision workflow)
-- docs/specs/API_CONTRACTS.md (Decisions API section)
-- docs/specs/UI_PATTERNS.md (design system)
+- docs/specs/CORE_JOURNEY.md (Steps 0-2)
+- docs/specs/LLM_ORCHESTRATION.md (Schemas section)
+- docs/design/DESIGN_SPEC_V2.md (Dashboard page)
 
-Create the decision list and creation flow:
+Create the decision list and entry point:
 1. app/(dashboard)/dashboard/page.tsx - Dashboard with decision list
-2. components/decisions/decision-card.tsx - Card showing title, status, quality score
-3. components/decisions/new-decision-modal.tsx - Modal for creating new decision
+2. components/decisions/decision-card.tsx - Card showing title, status, analysis progress
+3. components/decisions/new-decision-button.tsx - "Analyze a Decision" CTA
 4. app/api/decisions/route.ts - GET (list) and POST (create) endpoints
-5. app/(dashboard)/decisions/[id]/page.tsx - Decision canvas page (shell for now)
+5. types/decision.ts - DecisionSchemaV1 type definitions
 
-Follow the API contracts exactly. Use shadcn/ui components with dark theme.
+Status values: draft, analyzing, analyzed, tracking
+Show analysis progress indicator on cards (which step they're at).
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Decision list page | Shows user's decisions, pagination works | Component: list rendering | |
-| 💻 Decision card component | Shows title, status, quality score, owner | Component: card states | |
-| 💻 New decision modal | Template selection, title input | Component: modal flow | |
-| 💻 Create decision API | POST creates decision with template | Integration: API validation | |
-| 💻 Decision canvas page | Route `/decisions/[id]` works | E2E: navigate to decision | |
-| 💻 Decision header | Edit title inline, status badge | Component: inline editing | |
-| 💻 Delete decision | Soft delete with confirmation | E2E: delete flow | |
+| 💻 Dashboard page | Shows user's decisions with status | Component: list rendering | |
+| 💻 Decision card | Shows title, status, progress indicator | Component: card states | |
+| 💻 "Analyze a Decision" CTA | Prominent button, navigates to framing | Component: button | |
+| 💻 Decision list API | GET returns user's decisions | Integration: API | |
+| 💻 Create decision API | POST creates new decision in draft | Integration: API + DB | |
+| 💻 Decision types | TypeScript types matching schemas | Unit: type validation | |
 
 ---
 
-## 1.2 Template System (Week 2)
-
-**Windsurf Prompt:**
-```
-Read docs/specs/DECISION_TEMPLATES.md for the complete template specification.
-
-Create the template system:
-1. lib/templates/index.ts - Export all templates
-2. lib/templates/build-vs-buy.ts - Build vs Buy template
-3. lib/templates/market-entry.ts - Market Entry template
-4. lib/templates/investment.ts - Investment Decision template
-5. lib/templates/product-prioritization.ts - Product Prioritization template
-6. lib/templates/custom.ts - Custom template (minimal)
-7. components/decisions/template-selector.tsx - UI for selecting template
-
-Each template should match the structure in DECISION_TEMPLATES.md exactly, including:
-- Framing prompts
-- Suggested options
-- Default constraints
-- Stakeholder roles
-- Evidence prompts
-- AI context
-```
-
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Template selector UI | 4 templates + custom displayed | Component: selector | |
-| 💻 Template application | Selected template pre-populates content | Integration: template application | |
-| 💻 Template context injection | AI context stored in decision metadata | Unit: template loading | |
-
----
-
-## 1.3 Options Section (Week 2-3)
+## 1.2 Decision Framing Page (Week 2)
 
 **Windsurf Prompt:**
 ```
 Read these files:
-- docs/specs/DECISION_FLOW.md (Options section)
-- docs/specs/API_CONTRACTS.md (Options API)
-- docs/architecture/TECHNICAL_ARCHITECTURE.md (options table schema)
+- docs/specs/CORE_JOURNEY.md (Step 1: Decision Framing)
+- docs/specs/LLM_ORCHESTRATION.md (Step 1: Decision Framing)
+- docs/design/DESIGN_SPEC_V2.md (Framing page)
 
-Create the options section of the decision canvas:
-1. components/canvas/options-section.tsx - Container for options
-2. components/canvas/option-card.tsx - Individual option display
-3. components/canvas/option-form.tsx - Add/edit option form
-4. components/canvas/pros-cons-list.tsx - Editable pros/cons
-5. components/canvas/risks-list.tsx - Editable risks
-6. app/api/decisions/[id]/options/route.ts - CRUD endpoints
-7. app/api/decisions/[id]/options/[optionId]/route.ts - Single option endpoints
+Create the decision framing page:
+1. app/(dashboard)/analyze/[id]/frame/page.tsx - Framing page
+2. components/analyze/decision-statement-input.tsx - Text input for decision
+3. components/analyze/decision-type-selector.tsx - Type dropdown
+4. components/analyze/frame-sliders.tsx - Time horizon, reversibility, stakes, scope
+5. components/analyze/analysis-progress.tsx - Shows current step in flow
+6. app/api/decisions/[id]/frame/route.ts - PATCH endpoint to save frame
 
-Options should display as expandable cards. Pros/cons/risks are inline editable.
-Use the exact API request/response shapes from API_CONTRACTS.md.
+Decision Types:
+- Product bet
+- Market entry
+- Investment/prioritization
+- Platform/architecture
+- Org/operating model
+
+Frame sliders should have clear labels at each end:
+- Time horizon: 3-6 months ↔ 2+ years
+- Reversibility: Reversible ↔ Irreversible
+- Stakes: <$1M ↔ $10M+
+- Scope: Team-level ↔ Exec-level
+
+Save frame on change (debounced). Show "Next: Context" button when complete.
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Options list UI | Displays options as cards | Component: list rendering | |
-| 💻 Add option form | Title, description inputs | Component: form validation | |
-| 💻 Create option API | POST creates option linked to decision | Integration: API + DB | |
-| 💻 Edit option inline | Title/description editable | Component: inline editing | |
-| 💻 Pros/cons editing | Add, edit, delete pros/cons | Component: list management | |
-| 💻 Risks editing | Add, edit, delete risks | Component: list management | |
-| 💻 Delete option | Remove with confirmation | E2E: delete flow | |
-| 💻 Reorder options | Drag-drop reordering | Integration: order persistence | |
+| 💻 Framing page route | `/analyze/[id]/frame` works | E2E: navigation | |
+| 💻 Decision statement input | Text input with placeholder | Component: input | |
+| 💻 Decision type selector | 5 types, radio or select | Component: selector | |
+| 💻 Frame sliders | 4 sliders with clear labels | Component: sliders | |
+| 💻 Progress indicator | Shows "Step 1 of 9: Framing" | Component: progress | |
+| 💻 Auto-save on change | Debounced PATCH to API | Integration: save | |
+| 💻 Frame validation | All fields required to proceed | Component: validation | |
+| 💻 Frame API | PATCH saves frame fields | Integration: API | |
 
 ---
 
-## 1.4 Evidence Section (Week 3)
+## 1.3 Context Anchoring Page (Week 2-3)
 
 **Windsurf Prompt:**
 ```
 Read these files:
-- docs/specs/DECISION_FLOW.md (Evidence section)
-- docs/specs/EVIDENCE_ENGINE.md (evidence types and sources)
-- docs/specs/API_CONTRACTS.md (Evidence API)
-- docs/architecture/TECHNICAL_ARCHITECTURE.md (evidence + evidence_options tables)
+- docs/specs/CORE_JOURNEY.md (Step 2: Context Anchoring)
+- docs/specs/LLM_ORCHESTRATION.md (Step 2: Context Anchoring)
+- docs/design/DESIGN_SPEC_V2.md (Context page)
 
-Create the evidence section:
-1. components/canvas/evidence-section.tsx - Container for evidence
-2. components/canvas/evidence-card.tsx - Individual evidence display
-3. components/canvas/evidence-form.tsx - Add evidence form with option linking
-4. components/canvas/option-link-selector.tsx - Multi-select for linking to options
-5. app/api/decisions/[id]/evidence/route.ts - CRUD endpoints
-6. app/api/decisions/[id]/evidence/[evidenceId]/route.ts - Single evidence endpoints
+Create the context anchoring page:
+1. app/(dashboard)/analyze/[id]/context/page.tsx - Context page
+2. components/analyze/company-context-input.tsx - Textarea for company context
+3. components/analyze/constraints-input.tsx - Add/remove constraints
+4. components/analyze/assumptions-input.tsx - Add/remove known assumptions
+5. components/analyze/falsification-input.tsx - "What would make this wrong?"
+6. app/api/decisions/[id]/context/route.ts - PATCH endpoint
 
-IMPORTANT: Evidence can link to MULTIPLE options via the evidence_options junction table.
-Each link has a relationship: "supports", "challenges", or "neutral".
-Follow API_CONTRACTS.md for the exact request/response shapes.
+Context fields are OPTIONAL but powerful. Show:
+- "Skip for now" option
+- Explanation of why this helps: "Reduces hindsight bias later"
+
+Constraints should be categorized:
+- Technical, Budget, Timeline, Legal, Brand, Org, Other
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Evidence list UI | Displays evidence items | Component: list rendering | |
-| 💻 Add evidence form | Claim, source, type, strength fields | Component: form validation | |
-| 💻 Create evidence API | POST creates evidence with option links | Integration: API + junction table | |
-| 💻 Evidence-option linking UI | Select multiple options, set relationship | Component: multi-select | |
-| 💻 Edit evidence | All fields editable | Component: editing | |
-| 💻 Delete evidence | Remove (cascades links) | Integration: cascade delete | |
-| 💻 Evidence strength indicator | Visual indicator for strength | Component: strength display | |
+| 💻 Context page route | `/analyze/[id]/context` works | E2E: navigation | |
+| 💻 Company context input | Optional textarea | Component: input | |
+| 💻 Constraints input | Add/edit/remove with categories | Component: list | |
+| 💻 Assumptions input | Add/edit/remove items | Component: list | |
+| 💻 Falsification input | Optional text input | Component: input | |
+| 💻 Skip option | Can proceed without filling | Component: skip button | |
+| 💻 Context API | PATCH saves context fields | Integration: API | |
+| 💻 Progress update | Shows "Step 2 of 9: Context" | Component: progress | |
 
 ---
 
-## 1.5 Constraints Section (Week 3)
+## 1.4 Analysis Trigger (Week 3)
 
 **Windsurf Prompt:**
 ```
 Read these files:
-- docs/specs/DECISION_FLOW.md (Constraints section)
-- docs/specs/API_CONTRACTS.md (Constraints API)
+- docs/specs/LLM_ORCHESTRATION.md (Full pipeline)
+- docs/specs/CORE_JOURNEY.md (Steps 3-8)
 
-Create the constraints section:
-1. components/canvas/constraints-section.tsx - Container grouped by category
-2. components/canvas/constraint-card.tsx - Individual constraint
-3. components/canvas/constraint-form.tsx - Add/edit form
-4. app/api/decisions/[id]/constraints/route.ts - CRUD endpoints
+Create the analysis trigger flow:
+1. components/analyze/start-analysis-button.tsx - "Start Analysis" CTA
+2. components/analyze/analysis-running-view.tsx - Shows live progress
+3. app/api/decisions/[id]/analyze/route.ts - POST triggers Inngest job
+4. lib/inngest/events.ts - Event type definitions
 
-Categories: legal, technical, budget, timeline, brand, org, other
-Severity: hard (must satisfy) or soft (prefer to satisfy)
-Hard constraints should have distinct visual styling (e.g., red border).
+When user clicks "Start Analysis":
+1. Validate frame is complete
+2. POST to /api/decisions/[id]/analyze
+3. Create job record in database
+4. Trigger Inngest event: decision/analyze.requested
+5. Navigate to progress view
+6. Poll job status every 2-3 seconds
+
+Progress view shows each step:
+- ✓ Planning research queries
+- ✓ Searching market signals
+- ● Extracting evidence... (18/25)
+- ○ Generating options
+- ○ Mapping evidence
+- ○ Scoring options
+- ○ Generating recommendation
+- ○ Creating brief
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Constraints list UI | Displays by category | Component: grouped list | |
-| 💻 Add constraint form | Category, description, severity | Component: form | |
-| 💻 Create constraint API | POST creates constraint | Integration: API | |
-| 💻 Edit/delete constraint | CRUD complete | Integration: CRUD | |
-| 💻 Hard vs soft visual | Different styling for severity | Component: styling | |
+| 💻 Start analysis button | Triggers job creation | Component: button | |
+| 💻 Analysis running view | Shows live step progress | Component: progress | |
+| 💻 Job creation API | Creates job, triggers Inngest | Integration: API | |
+| 💻 Inngest event types | TypeScript-safe events | Unit: types | |
+| 💻 Job polling hook | Polls status, updates UI | Component: polling | |
+| 💻 Step progress display | Shows completed/current/pending | Component: progress | |
+| 💻 Live findings preview | Shows snippet of latest finding | Component: preview | |
 
 ---
 
-## 1.6 Tradeoffs Section (Week 3-4)
+## 1.5 Analysis Results Shell (Week 3)
 
 **Windsurf Prompt:**
 ```
 Read these files:
-- docs/specs/DECISION_FLOW.md (Tradeoffs section)
-- docs/specs/API_CONTRACTS.md (Tradeoffs API)
+- docs/specs/CORE_JOURNEY.md (Steps 4-7 outputs)
+- docs/design/DESIGN_SPEC_V2.md (Results page)
 
-Create the tradeoffs section:
-1. components/canvas/tradeoffs-section.tsx - Container with progress indicator
-2. components/canvas/tradeoff-card.tsx - Shows "Give up X to get Y"
-3. components/canvas/tradeoff-form.tsx - Form with option selector
-4. app/api/decisions/[id]/tradeoffs/route.ts - CRUD endpoints
+Create the analysis results shell (AI content comes in Phase 2):
+1. app/(dashboard)/analyze/[id]/results/page.tsx - Results page
+2. components/analyze/results-layout.tsx - Tab/section layout
+3. components/analyze/evidence-cards-view.tsx - Display evidence cards
+4. components/analyze/options-view.tsx - Display AI-generated options
+5. components/analyze/evidence-mapping-view.tsx - Show support/contradict
+6. components/analyze/recommendation-view.tsx - Show recommendation
 
-Each tradeoff must be acknowledged before generating a brief.
-Show progress: "3 of 5 tradeoffs acknowledged"
+These are READ-ONLY views of AI-generated content.
+User can:
+- Expand/collapse sections
+- Click through to source URLs
+- See confidence breakdowns
+- Navigate to brief generation
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Tradeoffs list UI | Shows "give up X to get Y" | Component: list | |
-| 💻 Add tradeoff form | Option selector, gives/gets fields | Component: form | |
-| 💻 Create tradeoff API | POST creates linked to option | Integration: API | |
-| 💻 Acknowledge tradeoff | Toggle acknowledgment | Component: toggle | |
-| 💻 Tradeoff progress | Shows acknowledged vs total | Component: progress | |
+| 💻 Results page route | `/analyze/[id]/results` works | E2E: navigation | |
+| 💻 Results layout | Tabs or sections for each view | Component: layout | |
+| 💻 Evidence cards view | Displays EvidenceCard[] | Component: cards | |
+| 💻 Options view | Displays Option[] with details | Component: options | |
+| 💻 Evidence mapping view | Shows support/contradict per option | Component: mapping | |
+| 💻 Recommendation view | Shows primary + hedge + changers | Component: recommendation | |
+| 💻 Source links | Clicking evidence opens source URL | Component: links | |
 
 ---
 
-## 1.7 Stakeholders Section (Week 4)
+## 1.6 Database Schema (Week 2)
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/DECISION_FLOW.md (Stakeholders section)
-- docs/specs/API_CONTRACTS.md (Stakeholders API)
+Read docs/specs/LLM_ORCHESTRATION.md (Schemas section) for all type definitions.
 
-Create the stakeholders section:
-1. components/canvas/stakeholders-section.tsx - Container
-2. components/canvas/stakeholder-card.tsx - Name, role, stance, concerns
-3. components/canvas/stakeholder-form.tsx - Add/edit form
-4. app/api/decisions/[id]/stakeholders/route.ts - CRUD endpoints
+Create database migrations for the new schema:
+1. supabase/migrations/004_decision_v2.sql
 
-Stance should be visually distinct:
-- supportive = green
-- neutral = gray
-- skeptical = orange
-- unknown = gray dashed
+Tables needed:
+- decisions (update for new fields)
+  - statement, normalized_statement
+  - type, time_horizon, reversibility, stakes, scope
+  - inferred_risk_tolerance, inferred_freshness, inferred_confidence_threshold
+  - retrieval_budget (JSONB)
+  - status: draft, analyzing, analyzed, tracking
+
+- decision_context
+  - company_context
+  - falsification_criteria
+
+- constraints (linked to decision)
+  - category, description, is_hard
+
+- assumptions_ledger
+  - statement, status (declared/implicit/unverified)
+  - linked_options, verification_status
+
+- evidence_cards
+  - claim, snippet, source (JSONB)
+  - signal_type, confidence (JSONB)
+  - interpretation, falsification_criteria
+  - relevance_tags, entity_tags
+
+- options
+  - title, summary, commits_to, deprioritizes
+  - primary_upside, primary_risk
+  - reversibility, reversibility_explanation
+  - grounded_in_evidence (array of evidence_card IDs)
+
+- option_evidence_map
+  - option_id, evidence_card_id
+  - relationship: supporting, contradicting
+  - relevance_explanation, impact_level
+
+- option_scores
+  - option_id, overall_score
+  - score_breakdown (JSONB)
+  - rationale, risk_profile, time_to_feedback, blast_radius
+
+- recommendations
+  - decision_id, primary_option_id, hedge_option_id
+  - confidence, rationale, hedge_condition
+  - decision_changers (JSONB)
+  - monitor_triggers (JSONB)
+
+All tables need RLS policies for org isolation.
 ```
 
 | Task | Acceptance Criteria | Tests | Status |
 |------|---------------------|-------|--------|
-| 💻 Stakeholders list UI | Name, role, stance display | Component: list | |
-| 💻 Add stakeholder form | All fields | Component: form | |
-| 💻 Stakeholder CRUD API | Full CRUD | Integration: API | |
-| 💻 Stance indicator | Visual for supportive/neutral/skeptical | Component: styling | |
-
----
-
-## 1.8 Recommendation Section (Week 4)
-
-**Windsurf Prompt:**
-```
-Read these files:
-- docs/specs/DECISION_FLOW.md (Recommendation section)
-- docs/specs/API_CONTRACTS.md (update decision endpoint)
-
-Create the recommendation section:
-1. components/canvas/recommendation-section.tsx - Full recommendation UI
-2. components/canvas/option-selector.tsx - Select recommended option
-3. components/canvas/confidence-slider.tsx - 0-100 with labels
-4. Update app/api/decisions/[id]/route.ts - PATCH to save recommendation
-
-Confidence levels per spec:
-- 90-100: Very High
-- 70-89: High
-- 50-69: Moderate
-- 30-49: Low
-- 0-29: Very Low
-
-Include fields: recommended_option_id, confidence_score, confidence_rationale,
-recommendation_rationale, reversal_conditions
-```
-
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Recommendation selector | Pick from options | Component: selector | |
-| 💻 Confidence slider | 0-100 with rationale | Component: slider | |
-| 💻 Rationale input | Rich text for rationale | Component: input | |
-| 💻 Reversal conditions | Input for conditions | Component: input | |
-| 💻 Save recommendation API | PATCH decision with recommendation | Integration: API | |
-
----
-
-## 1.9 Quality Score (Week 4)
-
-**Windsurf Prompt:**
-```
-Read docs/specs/DECISION_FLOW.md, specifically the "Quality Score" section.
-
-Create the quality score system:
-1. lib/utils/quality-score.ts - Calculation function
-2. components/canvas/quality-sidebar.tsx - Visual progress by section
-3. components/canvas/section-status.tsx - Completion indicator per section
-4. app/api/decisions/[id]/quality/route.ts - GET endpoint
-
-Scoring (total 100%):
-- Decision Frame: 10%
-- Options (2+ with pros/cons): 20%
-- Evidence (3+ items): 20%
-- Constraints (1+ defined): 15%
-- Tradeoffs (all acknowledged): 20%
-- Recommendation (with confidence + rationale): 15%
-
-Must reach 80% to generate brief.
-```
-
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Quality score calculation | Matches spec (weights above) | Unit: calculation logic | |
-| 💻 Progress sidebar | Visual progress by section | Component: sidebar | |
-| 💻 Section completion check | Checks per DECISION_FLOW.md | Unit: completion rules | |
-| 💻 Quality score API | GET returns calculated score | Integration: API | |
+| 💻 Decision table updates | New columns added | DB: migration | |
+| 💻 decision_context table | Created with RLS | DB: migration | |
+| 💻 constraints table | Created with RLS | DB: migration | |
+| 💻 assumptions_ledger table | Created with RLS | DB: migration | |
+| 💻 evidence_cards table | Created with RLS | DB: migration | |
+| 💻 options table | Created with RLS | DB: migration | |
+| 💻 option_evidence_map table | Created with RLS | DB: migration | |
+| 💻 option_scores table | Created with RLS | DB: migration | |
+| 💻 recommendations table | Created with RLS | DB: migration | |
+| 💻 RLS policies | All tables isolated by org | Integration: RLS test | |
+| 💻 TypeScript types | Generated from schema | Unit: types | |
 
 ---
 
 ## Phase 1 Milestone
 
-**User can create decision, add all content, see quality score. No AI yet.**
+**User can create decision, frame it, add context, and trigger analysis.**
 
 ### Checklist
-- [ ] Decision list shows all user's decisions
-- [ ] Can create new decision from template
-- [ ] Can add/edit/delete options with pros/cons/risks
-- [ ] Can add/edit/delete evidence linked to options
-- [ ] Can add/edit/delete constraints by category
-- [ ] Can add/edit/delete tradeoffs with acknowledgment
-- [ ] Can add/edit/delete stakeholders with stance
-- [ ] Can set recommendation with confidence
-- [ ] Quality score calculates correctly
-- [ ] Must reach 80% quality to proceed
+- [ ] Dashboard shows all user's decisions with status
+- [ ] "Analyze a Decision" button starts new analysis
+- [ ] Framing page captures all required fields
+- [ ] Context page allows optional constraints/assumptions
+- [ ] "Start Analysis" triggers Inngest job
+- [ ] Progress view shows live analysis status
+- [ ] Results shell ready for AI content
+- [ ] All database tables created with RLS
+- [ ] TypeScript types match schemas
 
 ---
 
@@ -317,9 +320,9 @@ Must reach 80% to generate brief.
 
 ```
 <!-- Example:
-2024-01-20: Evidence-option linking not saving
-- Issue: Junction table insert failing
-- Fix: Added proper foreign key handling in API
+2024-01-20: Slider values not saving
+- Issue: Debounce too aggressive
+- Fix: Reduced debounce to 500ms
 -->
 ```
 
