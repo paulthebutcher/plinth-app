@@ -5,6 +5,336 @@
 
 ---
 
+## Design System
+
+> **Design Inspiration**: [Firecrawl.dev](https://www.firecrawl.dev/)
+> Clean, modern SaaS aesthetic with bold orange accents and confident typography.
+
+### Brand Philosophy
+
+- **Confident, not flashy** — Orange conveys energy and action without being aggressive
+- **Paper & Graphite** — Light backgrounds with charcoal text for readability
+- **Structured clarity** — Grid-based layouts that feel organized, not cramped
+- **Professional warmth** — Trustworthy for executives, not cold or sterile
+
+### Color Tokens
+
+```css
+/* ═══════════════════════════════════════════════════════════
+   PRIMARY: Orange (Action, CTAs, Brand)
+   ═══════════════════════════════════════════════════════════ */
+--primary: #F97316;              /* orange-500 - main brand */
+--primary-hover: #EA580C;        /* orange-600 - hover state */
+--primary-active: #C2410C;       /* orange-700 - active/pressed */
+--primary-soft: #FFF7ED;         /* orange-50 - subtle backgrounds */
+--primary-foreground: #FFFFFF;   /* white text on orange */
+
+/* ═══════════════════════════════════════════════════════════
+   BACKGROUNDS: Paper & Graphite
+   ═══════════════════════════════════════════════════════════ */
+--background: #FFFFFF;           /* pure white - main bg */
+--background-subtle: #F9FAFB;    /* gray-50 - cards, sections */
+--background-muted: #F3F4F6;     /* gray-100 - hover states */
+--background-dark: #18181B;      /* zinc-900 - dark mode bg */
+
+/* ═══════════════════════════════════════════════════════════
+   FOREGROUND: Graphite Text
+   ═══════════════════════════════════════════════════════════ */
+--foreground: #18181B;           /* zinc-900 - primary text */
+--foreground-muted: #52525B;     /* zinc-600 - secondary text */
+--foreground-subtle: #A1A1AA;    /* zinc-400 - placeholder, captions */
+--foreground-inverse: #FAFAFA;   /* zinc-50 - text on dark */
+
+/* ═══════════════════════════════════════════════════════════
+   SEMANTIC: Status & Feedback
+   ═══════════════════════════════════════════════════════════ */
+--success: #10B981;              /* emerald-500 */
+--success-soft: #ECFDF5;         /* emerald-50 */
+--warning: #F59E0B;              /* amber-500 */
+--warning-soft: #FFFBEB;         /* amber-50 */
+--error: #EF4444;                /* red-500 */
+--error-soft: #FEF2F2;           /* red-50 */
+--info: #3B82F6;                 /* blue-500 */
+--info-soft: #EFF6FF;            /* blue-50 */
+
+/* ═══════════════════════════════════════════════════════════
+   ANALYSIS STATUS (Evidence-First Flow)
+   ═══════════════════════════════════════════════════════════ */
+--status-draft: #71717A;         /* zinc-500 */
+--status-scanning: #F97316;      /* orange-500 - in progress */
+--status-complete: #10B981;      /* emerald-500 */
+--status-tracking: #3B82F6;      /* blue-500 */
+
+/* ═══════════════════════════════════════════════════════════
+   EVIDENCE & CONFIDENCE
+   ═══════════════════════════════════════════════════════════ */
+--confidence-high: #10B981;      /* emerald-500 */
+--confidence-medium: #F59E0B;    /* amber-500 */
+--confidence-low: #EF4444;       /* red-500 */
+
+--evidence-supporting: #10B981;  /* emerald-500 */
+--evidence-contradicting: #EF4444; /* red-500 */
+--evidence-unknown: #71717A;     /* zinc-500 */
+
+/* ═══════════════════════════════════════════════════════════
+   BORDERS & DIVIDERS
+   ═══════════════════════════════════════════════════════════ */
+--border: #E5E7EB;               /* gray-200 */
+--border-strong: #D1D5DB;        /* gray-300 */
+--border-focus: #F97316;         /* orange-500 - focus ring */
+--border-dark: #27272A;          /* zinc-800 - dark mode */
+```
+
+### Typography Scale
+
+> **Font Stack**: `'Inter', -apple-system, BlinkMacSystemFont, sans-serif`
+> Matches Firecrawl's clean, geometric sans-serif feel.
+
+| Token | Size | Weight | Line Height | Letter Spacing | Use |
+|-------|------|--------|-------------|----------------|-----|
+| display | 60px | 700 | 1.1 | -0.02em | Hero headlines |
+| h1 | 48px | 700 | 1.2 | -0.02em | Page titles |
+| h2 | 36px | 600 | 1.25 | -0.01em | Section headers |
+| h3 | 24px | 600 | 1.3 | 0 | Card titles |
+| h4 | 20px | 600 | 1.4 | 0 | Subsection titles |
+| body-lg | 18px | 400 | 1.6 | 0 | Emphasized paragraphs |
+| body | 16px | 400 | 1.5 | 0 | Default text |
+| body-sm | 14px | 400 | 1.5 | 0 | Secondary text |
+| caption | 12px | 500 | 1.4 | 0.01em | Labels, badges |
+| mono | 14px | 400 | 1.5 | 0 | Code, data |
+
+**Font Files:**
+```css
+--font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+--font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+```
+
+### Spacing Scale
+
+| Token | Value | Use |
+|-------|-------|-----|
+| 0 | 0px | Reset |
+| 1 | 4px | Tight icon gaps |
+| 2 | 8px | Compact spacing |
+| 3 | 12px | Button padding-x |
+| 4 | 16px | Default gap |
+| 5 | 20px | Card padding |
+| 6 | 24px | Section gaps |
+| 8 | 32px | Component spacing |
+| 10 | 40px | Page sections |
+| 12 | 48px | Major sections |
+| 16 | 64px | Page margins |
+| 20 | 80px | Hero spacing |
+
+### Border Radius
+
+| Token | Value | Use |
+|-------|-------|-----|
+| none | 0 | Square edges |
+| sm | 4px | Badges, tags |
+| md | 8px | Buttons, inputs |
+| lg | 12px | Cards |
+| xl | 16px | Modals, panels |
+| 2xl | 24px | Large cards |
+| full | 9999px | Pills, avatars |
+
+### Shadows
+
+```css
+/* Subtle elevation - modern, soft shadows */
+--shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+--shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+--shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+--shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04);
+
+/* Orange glow for focus/active states */
+--shadow-glow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+--shadow-glow-lg: 0 0 20px rgba(249, 115, 22, 0.2);
+```
+
+### Button Styles
+
+**Primary (Orange CTA):**
+```css
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 150ms;
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:active {
+  background: var(--primary-active);
+  transform: translateY(0);
+}
+```
+
+**Secondary (Outline):**
+```css
+.btn-secondary {
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border-strong);
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+.btn-secondary:hover {
+  background: var(--background-muted);
+  border-color: var(--foreground-muted);
+}
+```
+
+**Ghost (Text only):**
+```css
+.btn-ghost {
+  background: transparent;
+  color: var(--foreground-muted);
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+.btn-ghost:hover {
+  background: var(--background-muted);
+  color: var(--foreground);
+}
+```
+
+### Grid & Layout
+
+**Container Widths:**
+```css
+--container-sm: 640px;   /* Tight content (auth pages) */
+--container-md: 768px;   /* Default content */
+--container-lg: 1024px;  /* Wide content */
+--container-xl: 1280px;  /* Full dashboard */
+--container-2xl: 1536px; /* Max width */
+```
+
+**Grid Pattern:**
+- Use 12-column grid on desktop
+- 4px baseline for vertical rhythm
+- Consistent 24px (space-6) gaps between components
+- Cards use 20px (space-5) internal padding
+
+**Layout Structure:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Header (sticky, 64px height)                                │
+├────────────┬────────────────────────────────────────────────┤
+│            │                                                │
+│  Sidebar   │  Main Content                                  │
+│  (240px)   │  (flex-1, max-width: 1280px, centered)        │
+│            │                                                │
+│            │  ┌──────────────────────────────────────────┐ │
+│            │  │ Page Header                              │ │
+│            │  ├──────────────────────────────────────────┤ │
+│            │  │                                          │ │
+│            │  │ Content Area                             │ │
+│            │  │ (space-y-6 for vertical sections)        │ │
+│            │  │                                          │ │
+│            │  └──────────────────────────────────────────┘ │
+│            │                                                │
+└────────────┴────────────────────────────────────────────────┘
+```
+
+### Dark Mode
+
+Default is **light mode** (paper & graphite). Dark mode available via toggle.
+
+**Dark Mode Token Overrides:**
+```css
+[data-theme="dark"] {
+  --background: #09090B;           /* zinc-950 */
+  --background-subtle: #18181B;    /* zinc-900 */
+  --background-muted: #27272A;     /* zinc-800 */
+
+  --foreground: #FAFAFA;           /* zinc-50 */
+  --foreground-muted: #A1A1AA;     /* zinc-400 */
+  --foreground-subtle: #71717A;    /* zinc-500 */
+
+  --border: #27272A;               /* zinc-800 */
+  --border-strong: #3F3F46;        /* zinc-700 */
+
+  /* Primary stays orange - pops on dark */
+  --primary: #FB923C;              /* orange-400 - slightly lighter */
+  --primary-soft: #27272A;         /* dark subtle bg */
+}
+```
+
+### Component Library
+
+Uses **shadcn/ui** with customizations:
+
+| Component | shadcn Name | Customization |
+|-----------|-------------|---------------|
+| Button | `button` | Orange primary, gray secondary |
+| Input | `input` | Orange focus ring |
+| Textarea | `textarea` | Larger padding, subtle border |
+| Select | `select` | Consistent with inputs |
+| Slider | `slider` | Orange thumb and track fill |
+| Badge | `badge` | Semantic colors, sm radius |
+| Card | `card` | White bg, lg radius, soft shadow |
+| Dialog | `dialog` | Centered, xl radius |
+| Sheet | `sheet` | Slide panel for mobile |
+| Tabs | `tabs` | Orange active indicator |
+| Progress | `progress` | Orange fill |
+| Skeleton | `skeleton` | Subtle gray pulse |
+| Toast | `sonner` | Bottom-right, with icons |
+
+### Icons
+
+Use **Lucide Icons** (same as shadcn default).
+
+Key icons for Plinth:
+| Use | Icon |
+|-----|------|
+| New analysis | `Sparkles` |
+| Dashboard | `LayoutGrid` |
+| Settings | `Settings` |
+| Decision | `Target` |
+| Evidence | `Search` or `FileText` |
+| Options | `Layers` |
+| Confidence | `TrendingUp` |
+| Recommendation | `ThumbsUp` or `CheckCircle` |
+| Tracking | `Activity` |
+| Warning | `AlertTriangle` |
+| Error | `XCircle` |
+| Success | `CheckCircle` |
+
+### Animation Guidelines
+
+| Interaction | Animation | Duration | Easing |
+|-------------|-----------|----------|--------|
+| Button hover | Background + lift | 150ms | ease-out |
+| Button press | Scale 0.98 | 100ms | ease-in |
+| Card hover | Shadow + subtle lift | 200ms | ease-out |
+| Modal open | Fade + scale | 200ms | ease-out |
+| Modal close | Fade + scale | 150ms | ease-in |
+| Slide panel | Slide from edge | 300ms | ease-out |
+| Toast appear | Slide up + fade | 200ms | ease-out |
+| Progress bar | Width | 300ms | ease-in-out |
+| Skeleton | Pulse opacity | 1.5s | ease-in-out (loop) |
+
+**Reduced Motion:**
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+---
+
 ## Sitemap (Updated)
 
 ```

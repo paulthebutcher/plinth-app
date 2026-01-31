@@ -1,100 +1,85 @@
 # UI/UX Patterns Specification
 
+> ⚠️ **IMPORTANT**: This file contains UI interaction patterns and component specifications.
+> For **colors, typography, and design tokens**, see the **Design System section in [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md)**.
+
 ## Overview
 
-Plinth's design is inspired by **Spotify** (bold typography, high contrast), **ClickUp** (organized density, task-oriented), and **FullStory** (clean data visualization, professional SaaS). The result should feel like a premium tool for strategic leaders.
+Plinth's design is inspired by **[Firecrawl.dev](https://www.firecrawl.dev/)** — a clean, modern SaaS aesthetic with bold orange accents and confident typography. The result should feel like a premium tool for strategic executives.
 
 ---
 
 ## Design Principles
 
-1. **Organized density** - Pack information efficiently without feeling cluttered
-2. **Clear hierarchy** - Most important things are most prominent
-3. **Confident typography** - Bold headings, readable body
-4. **Purposeful animation** - Subtle, meaningful transitions
-5. **Dark mode native** - Design for dark first, light as alternative
+1. **Confident, not flashy** — Orange conveys energy and action without being aggressive
+2. **Paper & Graphite** — Light backgrounds with charcoal text for readability
+3. **Structured clarity** — Grid-based layouts that feel organized, not cramped
+4. **Professional warmth** — Trustworthy for executives, not cold or sterile
+5. **Light mode primary** — Design for light first, dark as alternative
 
 ---
 
 ## Color System
 
-### Brand Colors
+> **See [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md)** for the complete color token reference.
 
-```css
-/* Primary - Confident blue */
---primary-50: #E6F1FF;
---primary-100: #CCE4FF;
---primary-200: #99C9FF;
---primary-300: #66ADFF;
---primary-400: #3392FF;
---primary-500: #0077FF;  /* Primary brand */
---primary-600: #005FCC;
---primary-700: #004799;
---primary-800: #003066;
---primary-900: #001833;
+### Quick Reference
 
-/* Neutral - Warm grays */
---neutral-50: #FAFAFA;
---neutral-100: #F4F4F5;
---neutral-200: #E4E4E7;
---neutral-300: #D4D4D8;
---neutral-400: #A1A1AA;
---neutral-500: #71717A;
---neutral-600: #52525B;
---neutral-700: #3F3F46;
---neutral-800: #27272A;
---neutral-900: #18181B;
---neutral-950: #0F0F10;
-```
+| Token | Value | Use |
+|-------|-------|-----|
+| `--primary` | `#F97316` (orange-500) | CTAs, brand accents |
+| `--background` | `#FFFFFF` (white) | Main background |
+| `--foreground` | `#18181B` (zinc-900) | Primary text |
+| `--border` | `#E5E7EB` (gray-200) | Dividers, borders |
 
 ### Semantic Colors
 
 ```css
 /* Status */
---success: #10B981;  /* Green */
---warning: #F59E0B;  /* Amber */
---error: #EF4444;    /* Red */
---info: #3B82F6;     /* Blue */
+--success: #10B981;  /* emerald-500 */
+--warning: #F59E0B;  /* amber-500 */
+--error: #EF4444;    /* red-500 */
+--info: #3B82F6;     /* blue-500 */
 
-/* Decision status */
---status-draft: #71717A;
---status-in-review: #F59E0B;
---status-committed: #10B981;
---status-archived: #A1A1AA;
+/* Analysis status (v2 flow) */
+--status-draft: #71717A;       /* zinc-500 */
+--status-scanning: #F97316;    /* orange-500 - in progress */
+--status-complete: #10B981;    /* emerald-500 */
+--status-tracking: #3B82F6;    /* blue-500 */
 
-/* Evidence strength */
---strength-strong: #10B981;
---strength-moderate: #F59E0B;
---strength-weak: #EF4444;
+/* Confidence scores */
+--confidence-high: #10B981;    /* emerald-500 */
+--confidence-medium: #F59E0B;  /* amber-500 */
+--confidence-low: #EF4444;     /* red-500 */
 
-/* Quality score */
---quality-low: #EF4444;      /* 0-40 */
---quality-medium: #F59E0B;   /* 40-70 */
---quality-high: #10B981;     /* 70-100 */
+/* Evidence mapping */
+--evidence-supporting: #10B981;     /* emerald-500 */
+--evidence-contradicting: #EF4444;  /* red-500 */
+--evidence-unknown: #71717A;        /* zinc-500 */
 ```
 
 ### Theme Configurations
 
-**Dark Mode (Default)**
-```css
---background: #0F0F10;
---background-secondary: #18181B;
---background-tertiary: #27272A;
---foreground: #FAFAFA;
---foreground-muted: #A1A1AA;
---border: #3F3F46;
---border-subtle: #27272A;
-```
-
-**Light Mode**
+**Light Mode (Default)**
 ```css
 --background: #FFFFFF;
---background-secondary: #FAFAFA;
---background-tertiary: #F4F4F5;
+--background-subtle: #F9FAFB;
+--background-muted: #F3F4F6;
 --foreground: #18181B;
---foreground-muted: #71717A;
---border: #E4E4E7;
---border-subtle: #F4F4F5;
+--foreground-muted: #52525B;
+--border: #E5E7EB;
+--border-strong: #D1D5DB;
+```
+
+**Dark Mode**
+```css
+--background: #09090B;
+--background-subtle: #18181B;
+--background-muted: #27272A;
+--foreground: #FAFAFA;
+--foreground-muted: #A1A1AA;
+--border: #27272A;
+--border-strong: #3F3F46;
 ```
 
 ---
@@ -297,23 +282,32 @@ Plinth's design is inspired by **Spotify** (bold typography, high contrast), **C
 
 ### Buttons
 
-**Primary Button**
+> **See [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md)** for complete button styling.
+
+**Primary Button (Orange)**
 ```css
 .btn-primary {
-  background: var(--primary-500);
+  background: var(--primary);           /* #F97316 orange-500 */
   color: white;
-  font-weight: var(--font-medium);
-  padding: var(--space-2) var(--space-4);
+  font-weight: 600;
+  padding: 12px 24px;
   border-radius: 8px;
-  transition: background 150ms ease;
+  transition: all 150ms ease;
 }
 
 .btn-primary:hover {
-  background: var(--primary-600);
+  background: var(--primary-hover);     /* #EA580C orange-600 */
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  background: var(--primary-active);    /* #C2410C orange-700 */
+  transform: translateY(0);
 }
 
 .btn-primary:disabled {
-  background: var(--neutral-600);
+  background: #D1D5DB;                  /* gray-300 */
   cursor: not-allowed;
 }
 ```
@@ -401,8 +395,8 @@ Plinth's design is inspired by **Spotify** (bold typography, high contrast), **C
 
 .input:focus {
   outline: none;
-  border-color: var(--primary-500);
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+  border-color: var(--primary);           /* #F97316 orange-500 */
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);  /* orange glow */
 }
 
 .input::placeholder {
@@ -664,7 +658,7 @@ Use **Lucide React** for consistency with shadcn/ui.
 
 ```css
 :focus-visible {
-  outline: 2px solid var(--primary-500);
+  outline: 2px solid var(--primary);      /* #F97316 orange-500 */
   outline-offset: 2px;
 }
 
@@ -693,6 +687,8 @@ Use **Lucide React** for consistency with shadcn/ui.
 
 ### Theme Configuration
 
+> **See [DESIGN_SPEC_V2.md](../design/DESIGN_SPEC_V2.md)** for the complete design token reference.
+
 ```typescript
 // tailwind.config.js
 module.exports = {
@@ -704,10 +700,13 @@ module.exports = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: '#F97316',           // orange-500
+          hover: '#EA580C',             // orange-600
+          active: '#C2410C',            // orange-700
+          soft: '#FFF7ED',              // orange-50
+          foreground: '#FFFFFF',
         },
-        // ... rest of semantic colors
+        // ... rest of semantic colors (see DESIGN_SPEC_V2.md)
       },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
@@ -722,16 +721,16 @@ module.exports = {
 
 ```typescript
 // components/ui/button.tsx
-// Extend shadcn/ui button with Plinth styling
+// Extend shadcn/ui button with Plinth styling (orange primary)
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+  "inline-flex items-center justify-center rounded-lg font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "bg-primary text-white hover:bg-primary/90",
-        secondary: "bg-transparent border border-border hover:bg-muted",
-        ghost: "hover:bg-muted hover:text-foreground",
-        destructive: "bg-destructive text-white hover:bg-destructive/90",
+        default: "bg-orange-500 text-white hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-md active:bg-orange-700 active:translate-y-0",
+        secondary: "bg-transparent border border-gray-300 text-foreground hover:bg-gray-100 hover:border-gray-400",
+        ghost: "hover:bg-gray-100 text-gray-600 hover:text-foreground",
+        destructive: "bg-red-500 text-white hover:bg-red-600",
       },
       size: {
         sm: "h-8 px-3 text-sm",

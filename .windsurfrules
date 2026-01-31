@@ -1,0 +1,180 @@
+# Plinth Project Rules
+
+## Quick Reference
+- **App**: AI-powered decision analysis for executives
+- **Stack**: Next.js 15, React 19, TypeScript, Tailwind, shadcn/ui, Supabase, Inngest
+- **Design**: Firecrawl-inspired (orange primary, light backgrounds)
+
+---
+
+## Design System
+
+### Colors
+| Token | Value | Use |
+|-------|-------|-----|
+| `--primary` | `#F97316` | CTAs, brand, focus rings |
+| `--primary-hover` | `#EA580C` | Hover states |
+| `--background` | `#FFFFFF` | Main background |
+| `--background-subtle` | `#F9FAFB` | Cards, sections |
+| `--foreground` | `#18181B` | Primary text |
+| `--foreground-muted` | `#52525B` | Secondary text |
+| `--border` | `#E5E7EB` | Dividers |
+| `--success` | `#10B981` | Positive states |
+| `--warning` | `#F59E0B` | Caution states |
+| `--error` | `#EF4444` | Error states |
+
+### Typography
+- Font: Inter (sans), JetBrains Mono (code)
+- Scale: h1 48px, h2 36px, h3 24px, body 16px, caption 12px
+
+### Components
+- Buttons: `rounded-lg` (8px), orange-500 primary, gray outline secondary
+- Cards: `rounded-xl` (12px), white bg, subtle shadow
+- Inputs: Orange focus ring `ring-orange-500/20` 
+- Use shadcn/ui components, customize with orange primary
+
+### Rules
+- ✅ Orange (#F97316) for primary actions
+- ✅ Light backgrounds by default
+- ✅ Lucide icons
+- ❌ Never blue as primary
+- ❌ Never dark mode as default
+
+---
+
+## Code Conventions
+
+### File Structure
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Auth route group
+│   ├── (dashboard)/       # Protected routes
+│   └── api/               # API routes
+├── components/
+│   ├── ui/                # shadcn/ui components
+│   └── [feature]/         # Feature components
+├── lib/
+│   ├── supabase/          # Supabase clients
+│   ├── ai/                # LLM orchestration
+│   └── utils.ts           # Helpers
+├── hooks/                 # Custom React hooks
+└── types/                 # TypeScript types
+```
+
+### Naming
+- Components: PascalCase (DecisionCard.tsx)
+- Hooks: camelCase with use prefix (useDecision.ts)
+- Utils: camelCase (formatDate.ts)
+- Types: PascalCase with suffix (DecisionType, AnalysisSchema)
+- API routes: kebab-case (/api/analyze/[id]/start-scan)
+
+### TypeScript
+- Strict mode enabled
+- Prefer interface for objects, type for unions/primitives
+- Use Zod for runtime validation
+- Export types from types/ directory
+
+### React Patterns
+- Server Components by default
+- Client Components only when needed ('use client')
+- Use React Server Actions for mutations
+- Prefer useActionState over useState for forms
+
+### Database (Supabase)
+- All tables have RLS policies
+- Use typed client from lib/supabase/server.ts
+- Queries go through server actions, not client
+- Foreign keys use _id suffix (decision_id, user_id)
+
+### Background Jobs (Inngest)
+- Functions in src/inngest/functions/
+- Use for: evidence scanning, LLM calls, email
+- Always include retry logic and timeouts
+
+---
+
+## Key Documentation
+| Doc | Purpose |
+|-----|---------|
+| docs/specs/CORE_JOURNEY.md | 9-step user flow (canonical) |
+| docs/design/DESIGN_SPEC_V2.md | Design system + page specs |
+| docs/specs/LLM_ORCHESTRATION.md | AI pipeline architecture |
+| docs/planning/BUILD_PLAN.md | Current build phase |
+
+## Common Patterns
+
+### API Route Template
+```typescript
+// src/app/api/[resource]/route.ts
+import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+
+export async function GET(request: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  // ... logic
+}
+```
+
+### Server Action Template
+```typescript
+// src/app/actions/[feature].ts
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
+
+const schema = z.object({ /* ... */ })
+
+export async function createThing(formData: FormData) {
+  const supabase = await createClient()
+  const parsed = schema.safeParse(Object.fromEntries(formData))
+  
+  if (!parsed.success) {
+    return { error: parsed.error.flatten() }
+  }
+  
+  // ... logic
+  revalidatePath('/dashboard')
+}
+```
+
+### Component Template
+```typescript
+// src/components/feature/FeatureCard.tsx
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+
+interface FeatureCardProps {
+  title: string
+  children: React.ReactNode
+}
+
+export function FeatureCard({ title, children }: FeatureCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  )
+}
+```
+
+---
+
+## Don'ts
+- ❌ Don't use `any` type
+- ❌ Don't fetch data in Client Components
+- ❌ Don't put secrets in client code
+- ❌ Don't skip Zod validation on inputs
+- ❌ Don't use blue as primary color
+- ❌ Don't use DESIGN_SPEC.md (v1 - deprecated)

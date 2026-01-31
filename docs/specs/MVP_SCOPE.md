@@ -1,5 +1,13 @@
 # Plinth MVP Scope Definition
 
+> ⚠️ **Note**: This document defines the business scope and value proposition.
+> For the **current technical architecture**, see:
+> - [CORE_JOURNEY.md](./CORE_JOURNEY.md) — 9-step evidence-first flow
+> - [LLM_ORCHESTRATION.md](./LLM_ORCHESTRATION.md) — AI pipeline
+>
+> **Key change**: Evidence is now gathered BEFORE options to prevent narrative anchoring.
+> Flow: Frame → Context → **Evidence Scan** → Options → Mapping → Scoring → Recommendation
+
 ## Executive Summary
 
 Plinth is a decision-quality system for senior leaders operating in complex environments. The MVP focuses on three proven value drivers: **structured decision framing**, **AI-generated analysis**, and **executive-ready outputs**.
@@ -27,9 +35,9 @@ Plinth helps executives answer:
 ### Tier 1: Must Have (Launch Blockers)
 
 #### 1. Decision Workspace
-- Create and manage decision projects
-- Structured decision canvas: Frame → Options → Evidence → Constraints → Tradeoffs → Recommendation
-- Progress indicator showing decision completeness
+- Create and manage decision analyses
+- Evidence-first flow: Frame → Context → Evidence Scan → Options → Scoring → Recommendation
+- Progress indicator showing analysis step (1-8)
 - Save/resume workflow state
 
 #### 2. AI-Powered Analysis Engine

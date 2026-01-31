@@ -1,8 +1,18 @@
 # Onboarding Flow Specification
 
+> ⚠️ **Needs Update for v2 Architecture**
+>
+> This spec references the v1 "Decision Canvas" flow. In v2:
+> - Users go to `/analyze` (not `/decisions/[id]`)
+> - Evidence is gathered BEFORE options (not after)
+> - "Quality Score" is now "Confidence Score"
+> - Templates are simplified — users just describe their decision
+>
+> See [CORE_JOURNEY.md](./CORE_JOURNEY.md) for the current 9-step flow.
+
 ## Overview
 
-First-time user experience that activates users quickly. Goal: User completes their first decision brief within 30 minutes of signup.
+First-time user experience that activates users quickly. Goal: User completes their first decision brief within 10 minutes of signup.
 
 ---
 
@@ -216,12 +226,12 @@ await supabase.from('users').update({
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 3c. Redirect to Decision Canvas
+### 3c. Redirect to Analysis Flow
 
-After creation, redirect to the decision canvas (`/decisions/[id]`) with:
-- Template pre-populated (options, constraints)
+After creation, redirect to the analysis flow (`/analyze/[id]/frame`) with:
+- Decision frame pre-populated
 - First-time hints enabled
-- Progress indicator visible
+- Step progress indicator visible (1 of 8)
 
 ---
 
@@ -286,14 +296,14 @@ After creation, redirect to the decision canvas (`/decisions/[id]`) with:
 └────────────────────────────────────┘
 ```
 
-**Step 5: Quality Score**
+**Step 5: Confidence Score**
 ```
 ┌────────────────────────────────────┐
-│ 💡 Quality Score                   │
+│ 💡 Confidence Score                │
 │                                    │
-│ This shows how complete your       │
-│ decision is. Aim for 80%+ before   │
-│ generating your brief.             │
+│ This shows how strongly the        │
+│ evidence supports each option.     │
+│ Higher = more certainty.           │
 │                                    │
 │ [5/6]       [← Back] [Next →]      │
 └────────────────────────────────────┘
@@ -382,9 +392,10 @@ const hints = {
 | Milestone | Target | Measurement |
 |-----------|--------|-------------|
 | Complete onboarding | 90% | Reach dashboard |
-| Create first decision | 80% | Decision created |
-| Add 2+ options | 70% | Options count |
-| Use AI feature | 60% | Any AI action |
+| Start first analysis | 80% | Analysis created |
+| Complete framing | 75% | Frame + context done |
+| See evidence scan | 70% | Scan initiated |
+| View recommendation | 60% | Reached step 7 |
 | Generate first brief | 50% | Brief generated |
 | Invite team member | 30% | Invite sent |
 

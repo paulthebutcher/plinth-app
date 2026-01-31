@@ -17,8 +17,9 @@
 
 | Document | Description |
 |----------|-------------|
-| [DESIGN_SPEC_V2.md](./design/DESIGN_SPEC_V2.md) | Pages, components, sample data for UI implementation |
+| [DESIGN_SPEC_V2.md](./design/DESIGN_SPEC_V2.md) | **Design System** (Firecrawl-inspired: orange, light backgrounds) + pages/components |
 | [NAVIGATION_AND_AI.md](./design/NAVIGATION_AND_AI.md) | Navigation patterns, AI UX, keyboard shortcuts |
+| [UI_PATTERNS.md](./specs/UI_PATTERNS.md) | Component behaviors, animations, accessibility |
 
 ### Implementation
 
@@ -74,6 +75,8 @@
 | AI | OpenAI GPT-4o/4o-mini, Exa (search), Firecrawl (scraping) |
 | Deployment | Vercel |
 
+**Design System**: Inspired by [Firecrawl.dev](https://www.firecrawl.dev/) — **orange (#F97316) primary color**, light "paper & graphite" backgrounds, bold Inter typography. See [DESIGN_SPEC_V2.md](./design/DESIGN_SPEC_V2.md) for complete tokens.
+
 ---
 
 ## Cost Model
@@ -101,11 +104,16 @@
 
 ---
 
-## Deprecated Documents
+## Archived Documents
 
-| Document | Replaced By |
-|----------|-------------|
-| [DESIGN_SPEC.md](./design/DESIGN_SPEC.md) (v1) | [DESIGN_SPEC_V2.md](./design/DESIGN_SPEC_V2.md) |
+> ⚠️ **Do not use these files.** They have been moved to `docs/_archive/`.
+
+| Archived File | Replaced By | Reason |
+|---------------|-------------|--------|
+| `DESIGN_SPEC.md` | [DESIGN_SPEC_V2.md](./design/DESIGN_SPEC_V2.md) | v1 design (blue, dark mode) |
+| `BUILD_PLAN_ORIGINAL.md` | [build-plan/](./planning/build-plan/) | Superseded by phased plan |
+| `IMPLEMENTATION_ROADMAP.md` | [build-plan/](./planning/build-plan/) | Outdated tech stack references |
+| `DECISION_FLOW.md` | [CORE_JOURNEY.md](./specs/CORE_JOURNEY.md) | v1 user-driven flow |
 
 ---
 

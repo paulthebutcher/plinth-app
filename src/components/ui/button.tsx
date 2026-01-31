@@ -20,10 +20,9 @@ export function Button({
 
   const base =
     "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed";
-  const styles =
-    variant === "outline"
-      ? "border border-current bg-transparent"
-      : "bg-black text-white";
+  const styles = variant === "outline"
+    ? "border border-border hover:bg-background-muted hover:border-foreground-muted"
+    : "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active";
 
   return (
     <Comp

@@ -26,274 +26,505 @@ User Input (This Phase)          AI Analysis (Phase 2)
 
 ---
 
-## 1.1 Decision List & Dashboard (Week 2)
+## 1.1 Dashboard & Decision List
+
+### 1.1a Dashboard Layout
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/CORE_JOURNEY.md (Steps 0-2)
-- docs/specs/LLM_ORCHESTRATION.md (Schemas section)
-- docs/design/DESIGN_SPEC_V2.md (Dashboard page)
+Create the dashboard layout:
+1. app/(dashboard)/layout.tsx - Dashboard layout with sidebar
+2. components/layout/sidebar.tsx - Navigation sidebar
+3. components/layout/header.tsx - Top header with user menu
 
-Create the decision list and entry point:
-1. app/(dashboard)/dashboard/page.tsx - Dashboard with decision list
-2. components/decisions/decision-card.tsx - Card showing title, status, analysis progress
-3. components/decisions/new-decision-button.tsx - "Analyze a Decision" CTA
-4. app/api/decisions/route.ts - GET (list) and POST (create) endpoints
-5. types/decision.ts - DecisionSchemaV1 type definitions
-
-Status values: draft, analyzing, analyzed, tracking
-Show analysis progress indicator on cards (which step they're at).
+Use Supabase server client (from lib/supabase/server.ts) to get current user.
+Redirect to /login if not authenticated.
+Sidebar should have: Decisions (active), Settings links.
+Keep it clean and minimal using Tailwind.
 ```
 
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Dashboard page | Shows user's decisions with status | Component: list rendering | |
-| 💻 Decision card | Shows title, status, progress indicator | Component: card states | |
-| 💻 "Analyze a Decision" CTA | Prominent button, navigates to framing | Component: button | |
-| 💻 Decision list API | GET returns user's decisions | Integration: API | |
-| 💻 Create decision API | POST creates new decision in draft | Integration: API + DB | |
-| 💻 Decision types | TypeScript types matching schemas | Unit: type validation | |
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Dashboard layout | Wraps all dashboard pages | |
+| 💻 Sidebar component | Shows nav links | |
+| 💻 Header component | Shows user email, logout | |
 
 ---
 
-## 1.2 Decision Framing Page (Week 2)
+### 1.1b Decision List API
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/CORE_JOURNEY.md (Step 1: Decision Framing)
-- docs/specs/LLM_ORCHESTRATION.md (Step 1: Decision Framing)
-- docs/design/DESIGN_SPEC_V2.md (Framing page)
+Create the decisions API:
+1. app/api/decisions/route.ts - GET and POST endpoints
+2. src/types/decision.ts - TypeScript types for decisions
 
-Create the decision framing page:
-1. app/(dashboard)/analyze/[id]/frame/page.tsx - Framing page
-2. components/analyze/decision-statement-input.tsx - Text input for decision
-3. components/analyze/decision-type-selector.tsx - Type dropdown
-4. components/analyze/frame-sliders.tsx - Time horizon, reversibility, stakes, scope
-5. components/analyze/analysis-progress.tsx - Shows current step in flow
-6. app/api/decisions/[id]/frame/route.ts - PATCH endpoint to save frame
+Use the database types from src/types/database.ts.
 
-Decision Types:
-- Product bet
-- Market entry
-- Investment/prioritization
-- Platform/architecture
-- Org/operating model
+GET /api/decisions:
+- Get current user from Supabase auth
+- Return all decisions for user's org_id
+- Order by updated_at desc
+- Include analysis_status field
 
-Frame sliders should have clear labels at each end:
-- Time horizon: 3-6 months ↔ 2+ years
-- Reversibility: Reversible ↔ Irreversible
-- Stakes: <$1M ↔ $10M+
-- Scope: Team-level ↔ Exec-level
+POST /api/decisions:
+- Create new decision with title from body
+- Set status='draft', analysis_status='draft'
+- Return the created decision
 
-Save frame on change (debounced). Show "Next: Context" button when complete.
+Include proper error handling (401 if not auth, 500 for errors).
 ```
 
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Framing page route | `/analyze/[id]/frame` works | E2E: navigation | |
-| 💻 Decision statement input | Text input with placeholder | Component: input | |
-| 💻 Decision type selector | 5 types, radio or select | Component: selector | |
-| 💻 Frame sliders | 4 sliders with clear labels | Component: sliders | |
-| 💻 Progress indicator | Shows "Step 1 of 9: Framing" | Component: progress | |
-| 💻 Auto-save on change | Debounced PATCH to API | Integration: save | |
-| 💻 Frame validation | All fields required to proceed | Component: validation | |
-| 💻 Frame API | PATCH saves frame fields | Integration: API | |
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 GET /api/decisions | Returns user's decisions | |
+| 💻 POST /api/decisions | Creates new decision | |
+| 💻 Decision types file | TypeScript interfaces | |
 
 ---
 
-## 1.3 Context Anchoring Page (Week 2-3)
+### 1.1c Dashboard Page & Components
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/CORE_JOURNEY.md (Step 2: Context Anchoring)
-- docs/specs/LLM_ORCHESTRATION.md (Step 2: Context Anchoring)
-- docs/design/DESIGN_SPEC_V2.md (Context page)
+Create the dashboard page and decision components:
+1. app/(dashboard)/dashboard/page.tsx - Main dashboard
+2. components/decisions/decision-card.tsx - Card for each decision
+3. components/decisions/decision-list.tsx - List wrapper with loading state
+4. components/decisions/new-decision-button.tsx - "Analyze a Decision" CTA
 
-Create the context anchoring page:
-1. app/(dashboard)/analyze/[id]/context/page.tsx - Context page
-2. components/analyze/company-context-input.tsx - Textarea for company context
-3. components/analyze/constraints-input.tsx - Add/remove constraints
-4. components/analyze/assumptions-input.tsx - Add/remove known assumptions
-5. components/analyze/falsification-input.tsx - "What would make this wrong?"
-6. app/api/decisions/[id]/context/route.ts - PATCH endpoint
+Dashboard page:
+- Fetch decisions from /api/decisions
+- Show DecisionList with cards
+- Show NewDecisionButton prominently at top
 
-Context fields are OPTIONAL but powerful. Show:
-- "Skip for now" option
-- Explanation of why this helps: "Reduces hindsight bias later"
+DecisionCard shows:
+- Title
+- Status badge (draft, analyzing, analyzed)
+- Analysis progress if analyzing
+- Updated date
+- Click navigates to appropriate page based on status
 
-Constraints should be categorized:
-- Technical, Budget, Timeline, Legal, Brand, Org, Other
+NewDecisionButton:
+- Opens modal or inline form to enter decision title
+- POSTs to /api/decisions
+- On success, navigates to /analyze/[id]/frame
+
+Show empty state if no decisions: "No decisions yet. Start by analyzing your first strategic decision."
 ```
 
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Context page route | `/analyze/[id]/context` works | E2E: navigation | |
-| 💻 Company context input | Optional textarea | Component: input | |
-| 💻 Constraints input | Add/edit/remove with categories | Component: list | |
-| 💻 Assumptions input | Add/edit/remove items | Component: list | |
-| 💻 Falsification input | Optional text input | Component: input | |
-| 💻 Skip option | Can proceed without filling | Component: skip button | |
-| 💻 Context API | PATCH saves context fields | Integration: API | |
-| 💻 Progress update | Shows "Step 2 of 9: Context" | Component: progress | |
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Dashboard page | Shows decision list | |
+| 💻 Decision card | Displays decision info | |
+| 💻 Decision list | Handles loading/empty | |
+| 💻 New decision button | Creates and navigates | |
 
 ---
 
-## 1.4 Analysis Trigger (Week 3)
+## 1.2 Decision Framing Page
+
+### 1.2a Frame API
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/LLM_ORCHESTRATION.md (Full pipeline)
-- docs/specs/CORE_JOURNEY.md (Steps 3-8)
+Create the decision detail and frame APIs:
+1. app/api/decisions/[id]/route.ts - GET single decision, PATCH to update, DELETE
+2. app/api/decisions/[id]/frame/route.ts - PATCH to update frame fields only
 
-Create the analysis trigger flow:
-1. components/analyze/start-analysis-button.tsx - "Start Analysis" CTA
-2. components/analyze/analysis-running-view.tsx - Shows live progress
-3. app/api/decisions/[id]/analyze/route.ts - POST triggers Inngest job
-4. lib/inngest/events.ts - Event type definitions
+GET /api/decisions/[id]:
+- Verify user has access (same org)
+- Return full decision record
 
-When user clicks "Start Analysis":
-1. Validate frame is complete
-2. POST to /api/decisions/[id]/analyze
-3. Create job record in database
-4. Trigger Inngest event: decision/analyze.requested
-5. Navigate to progress view
-6. Poll job status every 2-3 seconds
+PATCH /api/decisions/[id]:
+- Update any provided fields
+- Return updated decision
 
-Progress view shows each step:
+DELETE /api/decisions/[id]:
+- Soft delete or hard delete
+- Return success
+
+PATCH /api/decisions/[id]/frame:
+- Only update frame fields: title, decision_frame, decision_type, time_horizon, reversibility, stakes, scope
+- Return updated decision
+
+All endpoints must verify org ownership.
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 GET /api/decisions/[id] | Returns single decision | |
+| 💻 PATCH /api/decisions/[id] | Updates decision | |
+| 💻 DELETE /api/decisions/[id] | Deletes decision | |
+| 💻 PATCH frame endpoint | Updates frame fields | |
+
+---
+
+### 1.2b Analysis Layout & Frame Page
+
+**Windsurf Prompt:**
+```
+Create the analyze layout and frame page:
+1. app/(dashboard)/analyze/[id]/layout.tsx - Analysis flow layout
+2. app/(dashboard)/analyze/[id]/frame/page.tsx - Framing page (Step 1)
+3. components/analyze/analysis-progress.tsx - Step indicator
+
+Analysis layout:
+- Fetch decision by ID
+- Show 404 if not found or not authorized
+- Show AnalysisProgress at top
+- Render children (the step pages)
+
+AnalysisProgress component:
+- Shows 7 steps as dots/pills: Frame, Context, Scan, Options, Map, Score, Recommend
+- Highlight current step based on route
+- Completed steps show checkmark
+- Steps 3-7 disabled until analysis runs
+
+Frame page:
+- Load decision data
+- Show form for framing (components built in next prompt)
+- "Next: Context" button at bottom (disabled until required fields filled)
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Analysis layout | Wraps all /analyze/[id]/* pages | |
+| 💻 Frame page | Shows framing form | |
+| 💻 Progress indicator | Shows current step | |
+
+---
+
+### 1.2c Frame Form Components
+
+**Windsurf Prompt:**
+```
+Install required shadcn components first:
+npx shadcn@latest add slider radio-group textarea
+
+Then create framing form components:
+1. components/analyze/decision-statement-input.tsx - Textarea for decision question
+2. components/analyze/decision-type-selector.tsx - Radio group for 5 types
+3. components/analyze/frame-sliders.tsx - 4 sliders with labels
+4. components/analyze/frame-form.tsx - Combines all into one form
+
+DecisionStatementInput:
+- Textarea with placeholder "What decision are you trying to make?"
+- Character count indicator
+
+DecisionTypeSelector:
+- Radio group with 5 options:
+  - product_bet: "Product Bet"
+  - market_entry: "Market Entry"
+  - investment: "Investment / Prioritization"
+  - platform: "Platform / Architecture"
+  - org_model: "Org / Operating Model"
+
+FrameSliders - 4 sliders each 1-5:
+- time_horizon: "3-6 months" ↔ "2+ years"
+- reversibility: "Easily reversible" ↔ "Irreversible"
+- stakes: "Low stakes (<$1M)" ↔ "High stakes ($10M+)"
+- scope: "Team-level" ↔ "Exec-level"
+
+FrameForm:
+- Combines all components
+- Auto-saves on change with 500ms debounce (PATCH to /api/decisions/[id]/frame)
+- Shows save indicator ("Saved" / "Saving...")
+- Validates required fields: statement and decision_type
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Statement input | Textarea with placeholder | |
+| 💻 Type selector | 5 radio options | |
+| 💻 Frame sliders | 4 sliders with labels | |
+| 💻 Frame form | Auto-saves, validates | |
+
+---
+
+## 1.3 Context Anchoring Page
+
+### 1.3a Context & Constraints API
+
+**Windsurf Prompt:**
+```
+Create the context and constraints APIs:
+1. app/api/decisions/[id]/context/route.ts - PATCH context fields
+2. app/api/decisions/[id]/constraints/route.ts - GET, POST constraints
+3. app/api/decisions/[id]/constraints/[constraintId]/route.ts - DELETE constraint
+
+PATCH /api/decisions/[id]/context:
+- Update: company_context, falsification_criteria
+- Return updated decision
+
+GET /api/decisions/[id]/constraints:
+- Return all constraints for this decision
+
+POST /api/decisions/[id]/constraints:
+- Create constraint with: category, description, severity (hard/soft)
+- Return created constraint
+
+DELETE constraints/[constraintId]:
+- Delete the constraint
+- Verify it belongs to this decision
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 PATCH context | Updates context fields | |
+| 💻 GET constraints | Lists constraints | |
+| 💻 POST constraints | Creates constraint | |
+| 💻 DELETE constraint | Removes constraint | |
+
+---
+
+### 1.3b Context Page & Components
+
+**Windsurf Prompt:**
+```
+Create the context page and components:
+1. app/(dashboard)/analyze/[id]/context/page.tsx - Context page (Step 2)
+2. components/analyze/company-context-input.tsx - Textarea for context
+3. components/analyze/constraints-list.tsx - List with add/remove
+4. components/analyze/constraint-form.tsx - Add constraint form
+5. components/analyze/context-form.tsx - Combines all
+
+Context page:
+- Load decision and constraints
+- Show context form
+- Two buttons at bottom: "Skip for now" and "Start Analysis"
+- Both navigate to /analyze/[id]/scanning
+
+CompanyContextInput:
+- Optional textarea
+- Placeholder: "Any relevant company context? (market position, recent changes, etc.)"
+
+ConstraintsList:
+- Shows existing constraints as cards
+- Each has category badge, description, delete button
+- "Add Constraint" button opens form
+
+ConstraintForm:
+- Category dropdown: Technical, Budget, Timeline, Legal, Brand, Org, Other
+- Description textarea
+- Severity toggle: Hard (must meet) / Soft (prefer to meet)
+- Save button POSTs to API
+
+All fields are OPTIONAL. Show helper text: "Context helps reduce bias but isn't required."
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Context page | Shows form, nav buttons | |
+| 💻 Context input | Optional textarea | |
+| 💻 Constraints list | Add/remove constraints | |
+| 💻 Constraint form | Category, description, severity | |
+
+---
+
+## 1.4 Analysis Trigger
+
+### 1.4a Job & Analysis API
+
+**Windsurf Prompt:**
+```
+Create the job and analysis APIs:
+1. app/api/decisions/[id]/analyze/route.ts - POST to start analysis
+2. app/api/jobs/[id]/route.ts - GET job status
+
+POST /api/decisions/[id]/analyze:
+- Verify decision exists and user has access
+- Verify decision has required frame fields (decision_frame, decision_type)
+- Create job record: type='decision_analysis', status='pending', decision_id
+- Update decision: analysis_status='scanning', analysis_started_at=now
+- Return { jobId, status: 'started' }
+
+GET /api/jobs/[id]:
+- Return job with: id, status, progress (0-100), error, output
+- Status: pending, running, completed, failed
+
+For now, the job won't actually run AI (that's Phase 2).
+We'll simulate progress in the UI or create a mock job runner.
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 POST analyze | Creates job, updates decision | |
+| 💻 GET job status | Returns job progress | |
+
+---
+
+### 1.4b Scanning Page & Progress
+
+**Windsurf Prompt:**
+```
+Create the scanning/progress page:
+1. app/(dashboard)/analyze/[id]/scanning/page.tsx - Progress view (Step 3)
+2. components/analyze/scanning-progress.tsx - Detailed progress display
+3. hooks/use-job-polling.ts - Poll job status
+
+Scanning page:
+- On mount, POST to /api/decisions/[id]/analyze to start (if not already started)
+- Show ScanningProgress component
+- Poll job status every 2 seconds using useJobPolling hook
+- When job.status === 'completed', redirect to /analyze/[id]/results
+- If job.status === 'failed', show error with retry button
+
+ScanningProgress shows steps:
 - ✓ Planning research queries
-- ✓ Searching market signals
-- ● Extracting evidence... (18/25)
+- ✓ Searching for evidence (12/12 sources)
+- ● Extracting insights... (18/25 pages)
 - ○ Generating options
-- ○ Mapping evidence
+- ○ Mapping evidence to options
 - ○ Scoring options
 - ○ Generating recommendation
-- ○ Creating brief
+
+For MVP, simulate progress:
+- Create a simple interval that updates UI progress
+- After ~10 seconds, mark as complete
+- This will be replaced with real Inngest jobs in Phase 2
+
+useJobPolling hook:
+- Takes jobId
+- Polls GET /api/jobs/[id] every 2 seconds
+- Returns { job, isLoading, error }
+- Stops polling when status is completed or failed
 ```
 
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Start analysis button | Triggers job creation | Component: button | |
-| 💻 Analysis running view | Shows live step progress | Component: progress | |
-| 💻 Job creation API | Creates job, triggers Inngest | Integration: API | |
-| 💻 Inngest event types | TypeScript-safe events | Unit: types | |
-| 💻 Job polling hook | Polls status, updates UI | Component: polling | |
-| 💻 Step progress display | Shows completed/current/pending | Component: progress | |
-| 💻 Live findings preview | Shows snippet of latest finding | Component: preview | |
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Scanning page | Shows progress, polls status | |
+| 💻 Progress display | Step-by-step visualization | |
+| 💻 Job polling hook | Reusable polling logic | |
 
 ---
 
-## 1.5 Analysis Results Shell (Week 3)
+## 1.5 Analysis Results Shell
+
+### 1.5a Results Page & Tabs
 
 **Windsurf Prompt:**
 ```
-Read these files:
-- docs/specs/CORE_JOURNEY.md (Steps 4-7 outputs)
-- docs/design/DESIGN_SPEC_V2.md (Results page)
+Install tabs component:
+npx shadcn@latest add tabs
 
-Create the analysis results shell (AI content comes in Phase 2):
-1. app/(dashboard)/analyze/[id]/results/page.tsx - Results page
-2. components/analyze/results-layout.tsx - Tab/section layout
-3. components/analyze/evidence-cards-view.tsx - Display evidence cards
-4. components/analyze/options-view.tsx - Display AI-generated options
-5. components/analyze/evidence-mapping-view.tsx - Show support/contradict
-6. components/analyze/recommendation-view.tsx - Show recommendation
+Create the results page:
+1. app/(dashboard)/analyze/[id]/results/page.tsx - Results page (Steps 4-7)
+2. components/analyze/results-tabs.tsx - Tab navigation
 
-These are READ-ONLY views of AI-generated content.
-User can:
-- Expand/collapse sections
-- Click through to source URLs
-- See confidence breakdowns
-- Navigate to brief generation
+Results page:
+- Load decision with related data (evidence, options, recommendations)
+- Use Tabs for sections: Evidence, Options, Recommendation
+- Show "View Brief" button that links to /decisions/[id]/brief
+- Show "Re-run Analysis" button (for later)
+
+ResultsTabs:
+- Three tabs using shadcn Tabs component
+- Evidence: shows evidence cards
+- Options: shows generated options with scores
+- Recommendation: shows primary recommendation
+
+For now, these will show empty/placeholder states.
+The actual data comes from Phase 2 AI pipeline.
 ```
 
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Results page route | `/analyze/[id]/results` works | E2E: navigation | |
-| 💻 Results layout | Tabs or sections for each view | Component: layout | |
-| 💻 Evidence cards view | Displays EvidenceCard[] | Component: cards | |
-| 💻 Options view | Displays Option[] with details | Component: options | |
-| 💻 Evidence mapping view | Shows support/contradict per option | Component: mapping | |
-| 💻 Recommendation view | Shows primary + hedge + changers | Component: recommendation | |
-| 💻 Source links | Clicking evidence opens source URL | Component: links | |
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Results page | Shows tabbed results | |
+| 💻 Results tabs | Three tab sections | |
 
 ---
 
-## 1.6 Database Schema (Week 2)
+### 1.5b Results Display Components
 
 **Windsurf Prompt:**
 ```
-Read docs/specs/LLM_ORCHESTRATION.md (Schemas section) for all type definitions.
+Create results display components:
+1. components/analyze/evidence-cards-view.tsx - List of evidence cards
+2. components/analyze/evidence-card.tsx - Single evidence card
+3. components/analyze/options-view.tsx - List of options
+4. components/analyze/option-card.tsx - Single option with score
+5. components/analyze/recommendation-view.tsx - Recommendation display
 
-Create database migrations for the new schema:
-1. supabase/migrations/004_decision_v2.sql
+EvidenceCardsView:
+- Takes evidence[] array
+- Shows grid of EvidenceCard components
+- Empty state: "Evidence will appear here after analysis"
 
-Tables needed:
-- decisions (update for new fields)
-  - statement, normalized_statement
-  - type, time_horizon, reversibility, stakes, scope
-  - inferred_risk_tolerance, inferred_freshness, inferred_confidence_threshold
-  - retrieval_budget (JSONB)
-  - status: draft, analyzing, analyzed, tracking
+EvidenceCard shows:
+- Claim text
+- Source link (clickable)
+- Signal type badge
+- Confidence indicator
+- "Supports" / "Challenges" tag if mapped to option
 
-- decision_context
-  - company_context
-  - falsification_criteria
+OptionsView:
+- Takes options[] array
+- Shows list of OptionCard components
+- Empty state: "Options will be generated from evidence"
 
-- constraints (linked to decision)
-  - category, description, is_hard
+OptionCard shows:
+- Title, summary
+- Score (if available) as progress bar
+- "Primary upside" and "Primary risk"
+- Grounded evidence count
 
-- assumptions_ledger
-  - statement, status (declared/implicit/unverified)
-  - linked_options, verification_status
-
-- evidence_cards
-  - claim, snippet, source (JSONB)
-  - signal_type, confidence (JSONB)
-  - interpretation, falsification_criteria
-  - relevance_tags, entity_tags
-
-- options
-  - title, summary, commits_to, deprioritizes
-  - primary_upside, primary_risk
-  - reversibility, reversibility_explanation
-  - grounded_in_evidence (array of evidence_card IDs)
-
-- option_evidence_map
-  - option_id, evidence_card_id
-  - relationship: supporting, contradicting
-  - relevance_explanation, impact_level
-
-- option_scores
-  - option_id, overall_score
-  - score_breakdown (JSONB)
-  - rationale, risk_profile, time_to_feedback, blast_radius
-
-- recommendations
-  - decision_id, primary_option_id, hedge_option_id
-  - confidence, rationale, hedge_condition
-  - decision_changers (JSONB)
-  - monitor_triggers (JSONB)
-
-All tables need RLS policies for org isolation.
+RecommendationView:
+- Takes recommendation object
+- Shows primary option highlighted
+- Shows hedge option if exists
+- Shows decision changers list
+- Empty state: "Recommendation will appear after scoring"
 ```
 
-| Task | Acceptance Criteria | Tests | Status |
-|------|---------------------|-------|--------|
-| 💻 Decision table updates | New columns added | DB: migration | |
-| 💻 decision_context table | Created with RLS | DB: migration | |
-| 💻 constraints table | Created with RLS | DB: migration | |
-| 💻 assumptions_ledger table | Created with RLS | DB: migration | |
-| 💻 evidence_cards table | Created with RLS | DB: migration | |
-| 💻 options table | Created with RLS | DB: migration | |
-| 💻 option_evidence_map table | Created with RLS | DB: migration | |
-| 💻 option_scores table | Created with RLS | DB: migration | |
-| 💻 recommendations table | Created with RLS | DB: migration | |
-| 💻 RLS policies | All tables isolated by org | Integration: RLS test | |
-| 💻 TypeScript types | Generated from schema | Unit: types | |
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Evidence cards view | Displays evidence list | |
+| 💻 Evidence card | Single card component | |
+| 💻 Options view | Displays options list | |
+| 💻 Option card | Single option component | |
+| 💻 Recommendation view | Shows recommendation | |
+
+---
+
+## 1.6 Polish & Navigation
+
+### 1.6a Navigation Flow
+
+**Windsurf Prompt:**
+```
+Ensure navigation flow works end-to-end:
+
+1. Update middleware.ts if needed:
+   - /dashboard, /analyze/*, /decisions/* require auth
+   - Redirect to /login if not authenticated
+
+2. Update components/layout/sidebar.tsx:
+   - "Decisions" links to /dashboard
+   - "Settings" links to /settings (placeholder page)
+   - Show current decision title when on /analyze/[id]/* pages
+
+3. Create placeholder settings page:
+   - app/(dashboard)/settings/page.tsx - Simple "Settings coming soon"
+
+4. Add navigation helpers:
+   - "Back to Decisions" link on analyze pages
+   - Breadcrumb or title showing decision name
+
+Test the full flow:
+1. Login → Dashboard
+2. Create decision → Frame page
+3. Fill frame → Context page
+4. Start analysis → Scanning page
+5. Complete → Results page
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Auth middleware | Protects dashboard routes | |
+| 💻 Sidebar updates | Shows context-aware nav | |
+| 💻 Settings placeholder | Basic page exists | |
+| 💻 Navigation helpers | Back links, breadcrumbs | |
 
 ---
 
@@ -303,14 +534,15 @@ All tables need RLS policies for org isolation.
 
 ### Checklist
 - [ ] Dashboard shows all user's decisions with status
-- [ ] "Analyze a Decision" button starts new analysis
-- [ ] Framing page captures all required fields
-- [ ] Context page allows optional constraints/assumptions
-- [ ] "Start Analysis" triggers Inngest job
-- [ ] Progress view shows live analysis status
-- [ ] Results shell ready for AI content
-- [ ] All database tables created with RLS
-- [ ] TypeScript types match schemas
+- [ ] "Analyze a Decision" button creates new decision
+- [ ] Framing page captures statement, type, sliders
+- [ ] Auto-save works on frame and context pages
+- [ ] Context page allows optional constraints
+- [ ] "Start Analysis" creates job and shows progress
+- [ ] Scanning page shows simulated progress
+- [ ] Results page has tabs for evidence/options/recommendation
+- [ ] Navigation flow works end-to-end
+- [ ] All routes protected by auth
 
 ---
 

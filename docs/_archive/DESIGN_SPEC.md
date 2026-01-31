@@ -1,18 +1,32 @@
 # Plinth Design Specification (v1 - DEPRECATED)
 
-> ⚠️ **DEPRECATED:** This document describes the v1 architecture with user-driven options/evidence.
+> # ⛔ DEPRECATED - DO NOT USE
 >
-> **Use [DESIGN_SPEC_V2.md](./DESIGN_SPEC_V2.md)** for the current evidence-first architecture.
+> **This document is DEPRECATED.** Do not reference this file for any design or implementation decisions.
 >
-> Key differences in v2:
-> - Evidence gathered BEFORE options (prevents narrative anchoring)
-> - AI generates options, user validates
-> - New `/analyze/[id]/*` routes replace `/decisions/[id]` canvas
-> - Confidence scoring instead of quality percentage
+> ## Use [DESIGN_SPEC_V2.md](./DESIGN_SPEC_V2.md) instead
+>
+> ### Key Differences (v1 → v2):
+>
+> | Aspect | v1 (DEPRECATED) | v2 (CURRENT) |
+> |--------|-----------------|--------------|
+> | **Primary Color** | Blue (#3B82F6) | **Orange (#F97316)** |
+> | **Background** | Dark zinc (#09090B) | **Light paper (#FFFFFF)** |
+> | **User Flow** | User adds options/evidence | AI generates, user validates |
+> | **Routes** | `/decisions/[id]` canvas | `/analyze/[id]/*` flow |
+> | **Scoring** | Quality percentage | Confidence scoring |
+> | **Design Inspiration** | Generic dark SaaS | **Firecrawl.dev** |
+>
+> ### ⚠️ If you're building UI:
+> 1. **DO NOT** use blue as primary color
+> 2. **DO NOT** use dark zinc backgrounds by default
+> 3. **DO** use orange (#F97316) as primary
+> 4. **DO** use light backgrounds with graphite text
+> 5. **DO** follow the Design System in DESIGN_SPEC_V2.md
 
 ---
 
-> For use in Figma / Pencil.dev (see v2 for current spec)
+> ~~For use in Figma / Pencil.dev~~ (see v2 for current spec)
 
 ---
 
