@@ -75,5 +75,5 @@ export async function GET(request: Request) {
     return redirectTo(requestUrl.origin, '/reset-password')
   }
 
-  return redirectTo(requestUrl.origin, '/')
+  return redirectTo(requestUrl.origin, '/dashboard')
 }
