@@ -4,6 +4,7 @@ import { BriefSection } from '@/components/outputs/brief-section'
 import { EvidenceCitation } from '@/components/outputs/evidence-citation'
 import { DecisionChangersList } from '@/components/outputs/decision-changers-list'
 import { BriefEditorPanel } from '@/components/outputs/brief-editor-panel'
+import { SharePanel } from '@/components/outputs/share-panel'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -33,7 +34,7 @@ export default async function BriefPage({
 
   const { data: brief } = await supabase
     .from('briefs')
-    .select('id, sections, citations, generated_at, is_edited, markdown')
+    .select('id, sections, citations, generated_at, is_edited, markdown, is_shared, share_key')
     .eq('decision_id', id)
     .maybeSingle()
 
@@ -68,6 +69,12 @@ export default async function BriefPage({
         generatedAt={brief.generated_at}
         isEdited={brief.is_edited ?? false}
         markdown={brief.markdown ?? ''}
+      />
+
+      <SharePanel
+        decisionId={id}
+        isShared={brief.is_shared ?? false}
+        shareUrl={brief.share_key ? `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/share/${brief.share_key}` : ''}
       />
 
       <div className="space-y-4">
