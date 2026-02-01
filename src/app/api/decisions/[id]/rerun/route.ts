@@ -15,7 +15,7 @@ export async function POST(
 
   const { data: decision } = await supabase
     .from('decisions')
-    .select('id, decision_frame, decision_type, analysis_status, org_id')
+    .select('id, decision_frame, decision_type, org_id')
     .eq('id', id)
     .eq('org_id', orgId)
     .single()
@@ -34,14 +34,13 @@ export async function POST(
     )
   }
 
-  const currentStatus = decision.analysis_status ?? 'draft'
-  const allowedStatuses = ['draft', 'framing', 'context', 'complete']
-  if (!allowedStatuses.includes(currentStatus)) {
-    return NextResponse.json(
-      { error: { code: 'conflict', message: 'Analysis already in progress' } },
-      { status: 400 }
-    )
-  }
+  await supabase.from('evidence_mappings').delete().eq('decision_id', id)
+  await supabase.from('option_scores').delete().eq('decision_id', id)
+  await supabase.from('recommendations').delete().eq('decision_id', id)
+  await supabase.from('options').delete().eq('decision_id', id)
+  await supabase.from('evidence').delete().eq('decision_id', id)
+  await supabase.from('decision_changers').delete().eq('decision_id', id)
+  await supabase.from('briefs').delete().eq('decision_id', id)
 
   const { data: job, error: jobError } = await supabase
     .from('jobs')
@@ -71,6 +70,10 @@ export async function POST(
     .update({
       analysis_status: 'scanning',
       analysis_started_at: new Date().toISOString(),
+      analysis_completed_at: null,
+      recommendation_id: null,
+      confidence_score: null,
+      recommendation_rationale: null,
     })
     .eq('id', decision.id)
 

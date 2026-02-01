@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { BriefHeader } from '@/components/outputs/brief-header'
 import { BriefEditor } from '@/components/outputs/brief-editor'
 import { ExportPdfButton } from '@/components/outputs/export-pdf-button'
+import { RerunAnalysisButton } from '@/components/outputs/rerun-analysis-button'
 
 interface BriefEditorPanelProps {
   decisionId: string
@@ -40,7 +41,12 @@ export function BriefEditorPanel({
         generatedAt={generatedAt}
         isEdited={edited}
         onEdit={() => setEditing(true)}
-        actions={<ExportPdfButton decisionId={decisionId} />}
+        actions={
+          <>
+            <RerunAnalysisButton decisionId={decisionId} />
+            <ExportPdfButton decisionId={decisionId} />
+          </>
+        }
       />
 
       <BriefEditor

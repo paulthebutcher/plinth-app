@@ -10,7 +10,7 @@ import {
 
 export const analyzeDecision = inngest.createFunction(
   { id: 'analyze-decision', name: 'Analyze Decision' },
-  { event: 'decision/analyze.requested' },
+  { event: 'decision/analyze' },
   async ({ event, step }) => {
     const { decisionId } = event.data
 
