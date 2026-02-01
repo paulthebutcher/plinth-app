@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useJobPolling } from '@/hooks/use-job-polling'
@@ -9,8 +9,9 @@ import { ScanningProgress } from '@/components/analyze/scanning-progress'
 export default function ScanningPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = use(params)
   const router = useRouter()
   const [jobId, setJobId] = useState<string | null>(null)
   const [startError, setStartError] = useState<string | null>(null)
@@ -21,7 +22,7 @@ export default function ScanningPage({
   useEffect(() => {
     const startAnalysis = async () => {
       try {
-        const res = await fetch(`/api/decisions/${params.id}/analyze`, {
+        const res = await fetch(`/api/decisions/${id}/analyze`, {
           method: 'POST',
         })
 
@@ -43,7 +44,7 @@ export default function ScanningPage({
     }
 
     startAnalysis()
-  }, [params.id])
+  }, [id])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,16 +63,16 @@ export default function ScanningPage({
   useEffect(() => {
     if (simulatedProgress >= 100 || job?.status === 'completed') {
       setTimeout(() => {
-        router.push(`/analyze/${params.id}/results`)
+        router.push(`/analyze/${id}/results`)
       }, 500)
     }
-  }, [simulatedProgress, job?.status, params.id, router])
+  }, [simulatedProgress, job?.status, id, router])
 
   if (startError) {
     return (
       <div className="py-12 text-center">
         <p className="mb-4 text-sm text-destructive">{startError}</p>
-        <Button variant="outline" onClick={() => router.push(`/analyze/${params.id}/frame`)}>
+        <Button variant="outline" onClick={() => router.push(`/analyze/${id}/frame`)}>
           Return to frame
         </Button>
       </div>

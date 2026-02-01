@@ -5,8 +5,9 @@ import { FrameForm } from '@/components/analyze/frame-form'
 export default async function FramePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const supabase = await createClient()
 
   const { data: decision } = await supabase
@@ -21,7 +22,7 @@ export default async function FramePage({
       stakes,
       scope
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!decision) notFound()

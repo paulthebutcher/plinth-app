@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button'
 export default async function ResultsPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const supabase = await createClient()
 
   const { data: decision } = await supabase
@@ -19,7 +20,7 @@ export default async function ResultsPage({
       confidence_score,
       recommendation_rationale
     `)
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!decision) notFound()
