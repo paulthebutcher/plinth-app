@@ -5,9 +5,10 @@ interface BriefHeaderProps {
   title: string
   generatedAt: string
   isEdited: boolean
+  onEdit: () => void
 }
 
-export function BriefHeader({ title, generatedAt, isEdited }: BriefHeaderProps) {
+export function BriefHeader({ title, generatedAt, isEdited, onEdit }: BriefHeaderProps) {
   const date = new Date(generatedAt).toLocaleDateString()
 
   return (
@@ -20,7 +21,7 @@ export function BriefHeader({ title, generatedAt, isEdited }: BriefHeaderProps) 
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline">Edit</Button>
+        <Button variant="outline" onClick={onEdit}>Edit</Button>
         <Button variant="outline">Share</Button>
         <Button variant="outline">Export</Button>
       </div>

@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { BriefHeader } from '@/components/outputs/brief-header'
 import { BriefSection } from '@/components/outputs/brief-section'
 import { EvidenceCitation } from '@/components/outputs/evidence-citation'
 import { DecisionChangersList } from '@/components/outputs/decision-changers-list'
+import { BriefEditorPanel } from '@/components/outputs/brief-editor-panel'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -33,7 +33,7 @@ export default async function BriefPage({
 
   const { data: brief } = await supabase
     .from('briefs')
-    .select('id, sections, citations, generated_at, is_edited')
+    .select('id, sections, citations, generated_at, is_edited, markdown')
     .eq('decision_id', id)
     .maybeSingle()
 
@@ -62,10 +62,12 @@ export default async function BriefPage({
 
   return (
     <div className="space-y-6">
-      <BriefHeader
+      <BriefEditorPanel
+        decisionId={id}
         title={decision.title}
         generatedAt={brief.generated_at}
         isEdited={brief.is_edited ?? false}
+        markdown={brief.markdown ?? ''}
       />
 
       <div className="space-y-4">
