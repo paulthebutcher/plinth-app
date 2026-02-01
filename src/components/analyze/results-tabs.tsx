@@ -19,6 +19,10 @@ interface ResultsTabsProps {
     optionTitle: string | null
     rationale: string | null
     confidence: number | null
+    hedgeOptionTitle?: string | null
+    hedgeCondition?: string | null
+    decisionChangers: { condition: string; wouldFavor: string; likelihood: string }[]
+    monitorTriggers: { signal: string; frequency: string; source?: string; threshold?: string }[]
   }
 }
 
@@ -43,6 +47,10 @@ export function ResultsTabs({
           optionTitle={recommendation.optionTitle}
           rationale={recommendation.rationale}
           confidence={recommendation.confidence}
+          hedgeOptionTitle={recommendation.hedgeOptionTitle}
+          hedgeCondition={recommendation.hedgeCondition}
+          decisionChangers={recommendation.decisionChangers}
+          monitorTriggers={recommendation.monitorTriggers}
           decisionId={decisionId}
         />
       </TabsContent>

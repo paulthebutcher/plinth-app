@@ -71,16 +71,23 @@ export default async function ResultsPage({
 
   const { data: recommendationRow } = await supabase
     .from('recommendations')
-    .select('primary_option_id, rationale, confidence')
+    .select('primary_option_id, rationale, confidence, hedge_option_id, hedge_condition, monitor_triggers')
     .eq('decision_id', id)
     .maybeSingle()
 
   const recommendedOptionTitle =
     options.find((option) => option.id === recommendationRow?.primary_option_id)?.title ?? null
+  const hedgeOptionTitle =
+    options.find((option) => option.id === recommendationRow?.hedge_option_id)?.title ?? null
 
   const { data: mappingRows } = await supabase
     .from('evidence_mappings')
     .select('evidence_id, relationship, option_id')
+    .eq('decision_id', id)
+
+  const { data: decisionChangersRows } = await supabase
+    .from('decision_changers')
+    .select('condition, would_favor, likelihood')
     .eq('decision_id', id)
 
   await supabase
@@ -133,6 +140,16 @@ export default async function ResultsPage({
           optionTitle: recommendedOptionTitle,
           rationale: recommendationRow?.rationale ?? null,
           confidence: recommendationRow?.confidence ?? null,
+          hedgeOptionTitle,
+          hedgeCondition: recommendationRow?.hedge_condition ?? null,
+          decisionChangers: (decisionChangersRows ?? []).map((row: any) => ({
+            condition: row.condition,
+            wouldFavor: row.would_favor,
+            likelihood: row.likelihood ?? 'medium',
+          })),
+          monitorTriggers: Array.isArray(recommendationRow?.monitor_triggers)
+            ? recommendationRow?.monitor_triggers
+            : [],
         }}
       />
     </div>
