@@ -17,7 +17,7 @@ export default function ScanningPage({
   const [startError, setStartError] = useState<string | null>(null)
   const { job } = useJobPolling(jobId)
 
-  const [simulatedProgress, setSimulatedProgress] = useState(0)
+  const [simulatedProgress, setSimulatedProgress] = useState(5) // Start at 5% so progress is visible immediately
 
   useEffect(() => {
     const startAnalysis = async () => {
