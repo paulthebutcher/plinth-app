@@ -45,26 +45,28 @@ export default async function ResultsPage({
 
   const { data: optionRows } = await supabase
     .from('options')
-    .select('id, title, summary')
+    .select('id, title, summary, commits_to, deprioritizes')
     .eq('decision_id', id)
 
   const { data: scoreRows } = await supabase
     .from('option_scores')
-    .select('option_id, overall_score')
+    .select('option_id, overall_score, score_breakdown')
     .eq('decision_id', id)
 
   const scoresByOption = new Map(
-    (scoreRows ?? []).map((row: any) => [row.option_id, row.overall_score])
+    (scoreRows ?? []).map((row: any) => [row.option_id, row])
   )
 
   const options = (optionRows ?? []).map((row: any) => ({
     id: row.id,
     title: row.title,
     summary: row.summary ?? '',
-    score:
-      typeof scoresByOption.get(row.id) === 'number'
-        ? scoresByOption.get(row.id)
-        : null,
+    score: typeof scoresByOption.get(row.id)?.overall_score === 'number'
+      ? scoresByOption.get(row.id).overall_score
+      : null,
+    scoreBreakdown: scoresByOption.get(row.id)?.score_breakdown ?? {},
+    commitsTo: row.commits_to ? row.commits_to.split(';').map((item: string) => item.trim()).filter(Boolean) : [],
+    deprioritizes: row.deprioritizes ? row.deprioritizes.split(';').map((item: string) => item.trim()).filter(Boolean) : [],
   }))
 
   const { data: recommendationRow } = await supabase
@@ -117,6 +119,16 @@ export default async function ResultsPage({
           }
         })}
         options={options}
+        optionEvidence={evidence.map((card) => ({
+          id: card.id,
+          claim: card.claim,
+          sourceUrl: card.sourceUrl,
+        }))}
+        optionMappings={(mappingRows ?? []).map((row: any) => ({
+          optionId: row.option_id,
+          evidenceId: row.evidence_id,
+          relationship: row.relationship,
+        }))}
         recommendation={{
           optionTitle: recommendedOptionTitle,
           rationale: recommendationRow?.rationale ?? null,

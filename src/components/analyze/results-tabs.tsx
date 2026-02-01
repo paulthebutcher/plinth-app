@@ -9,6 +9,12 @@ interface ResultsTabsProps {
   decisionId: string
   evidence: EvidenceListItem[]
   options: OptionListItem[]
+  optionEvidence: { id: string; claim: string; sourceUrl: string | null }[]
+  optionMappings: {
+    optionId: string
+    evidenceId: string
+    relationship: 'supporting' | 'contradicting' | 'unknown'
+  }[]
   recommendation: {
     optionTitle: string | null
     rationale: string | null
@@ -16,7 +22,14 @@ interface ResultsTabsProps {
   }
 }
 
-export function ResultsTabs({ decisionId, evidence, options, recommendation }: ResultsTabsProps) {
+export function ResultsTabs({
+  decisionId,
+  evidence,
+  options,
+  optionEvidence,
+  optionMappings,
+  recommendation,
+}: ResultsTabsProps) {
   return (
     <Tabs defaultValue="recommendation" className="w-full">
       <TabsList className="gap-2">
@@ -39,7 +52,12 @@ export function ResultsTabs({ decisionId, evidence, options, recommendation }: R
       </TabsContent>
 
       <TabsContent value="options" className="mt-6">
-        <OptionsList options={options} decisionId={decisionId} />
+        <OptionsList
+          options={options}
+          decisionId={decisionId}
+          evidence={optionEvidence}
+          mappings={optionMappings}
+        />
       </TabsContent>
     </Tabs>
   )
