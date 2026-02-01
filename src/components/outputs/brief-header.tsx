@@ -21,7 +21,7 @@ export function BriefHeader({ title, generatedAt, isEdited, onEdit, actions }: B
           {isEdited ? <Badge variant="subtle">Edited</Badge> : null}
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" onClick={onEdit}>Edit</Button>
         {actions}
       </div>
