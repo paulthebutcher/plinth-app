@@ -1,11 +1,22 @@
 'use client'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { EvidencePlaceholder } from './evidence-placeholder'
-import { OptionsPlaceholder } from './options-placeholder'
-import { RecommendationPlaceholder } from './recommendation-placeholder'
+import { EvidenceList, type EvidenceListItem } from './evidence-list'
+import { OptionsList, type OptionListItem } from './options-list'
+import { RecommendationView } from './recommendation-view'
 
-export function ResultsTabs({ decisionId }: { decisionId: string }) {
+interface ResultsTabsProps {
+  decisionId: string
+  evidence: EvidenceListItem[]
+  options: OptionListItem[]
+  recommendation: {
+    optionTitle: string | null
+    rationale: string | null
+    confidence: number | null
+  }
+}
+
+export function ResultsTabs({ decisionId, evidence, options, recommendation }: ResultsTabsProps) {
   return (
     <Tabs defaultValue="recommendation" className="w-full">
       <TabsList className="gap-2">
@@ -15,15 +26,20 @@ export function ResultsTabs({ decisionId }: { decisionId: string }) {
       </TabsList>
 
       <TabsContent value="recommendation" className="mt-6">
-        <RecommendationPlaceholder />
+        <RecommendationView
+          optionTitle={recommendation.optionTitle}
+          rationale={recommendation.rationale}
+          confidence={recommendation.confidence}
+          decisionId={decisionId}
+        />
       </TabsContent>
 
       <TabsContent value="evidence" className="mt-6">
-        <EvidencePlaceholder />
+        <EvidenceList evidence={evidence} decisionId={decisionId} />
       </TabsContent>
 
       <TabsContent value="options" className="mt-6">
-        <OptionsPlaceholder />
+        <OptionsList options={options} decisionId={decisionId} />
       </TabsContent>
     </Tabs>
   )

@@ -1634,70 +1634,236 @@ ACCEPTANCE CRITERIA:
 
 ## 2.10 Update Results UI (Week 6)
 
+> **Note:** This section is split into 4 prompts to keep each manageable and testable.
+
+---
+
+### 2.10.1 Results Page + Basic Data Flow
+
 **Windsurf Prompt:**
 ```
-GOAL: Update results page to display real analysis data.
+GOAL: Update results page to fetch and display real analysis data with basic list views.
 
 FILES TO UPDATE:
 - src/app/(dashboard)/analyze/[id]/results/page.tsx
 - src/components/analyze/results-tabs.tsx
-- src/components/analyze/evidence-placeholder.tsx → evidence-list.tsx
-- src/components/analyze/options-placeholder.tsx → options-list.tsx
-- src/components/analyze/recommendation-placeholder.tsx → recommendation-view.tsx
 
-RESULTS PAGE:
-1. Fetch full decision data including:
-   - evidence cards
-   - options with scores
-   - evidence mappings
-   - recommendation
-   - brief
+FILES TO CREATE:
+- src/components/analyze/evidence-list.tsx (rename from evidence-placeholder.tsx)
+- src/components/analyze/options-list.tsx (rename from options-placeholder.tsx)
+- src/components/analyze/recommendation-view.tsx (rename from recommendation-placeholder.tsx)
 
-2. Pass to ResultsTabs component
+BEHAVIOR:
 
-EVIDENCE LIST:
-1. Show all evidence cards
-2. Filter by: supporting, contradicting, all
-3. Each card shows: claim, source, scores, freshness badge
-4. Click to expand: full snippet, link to source
+1. Results page fetches full decision data:
+   - evidence cards from decision_evidence
+   - options with scores from decision_options
+   - evidence mappings from decision_evidence_mappings
+   - recommendation from decision_recommendations
+   - brief from decision_briefs
 
-OPTIONS LIST:
-1. Show all options with scores
-2. Recommended option highlighted
-3. Each option shows:
-   - Title, summary
-   - Score breakdown (6 factors as bar chart)
-   - Commits to / deprioritizes lists
-   - Supporting/contradicting evidence counts
-4. Expandable: show linked evidence cards
+2. Pass data to ResultsTabs component
 
-RECOMMENDATION VIEW:
-1. Primary recommendation with confidence gauge
-2. Rationale text
-3. Hedge option (if exists) with condition
-4. Decision changers list
-5. Monitor triggers list
+3. Evidence list (basic):
+   - Simple list of evidence cards
+   - Each shows: claim, source URL, relevance score
+   - No filtering yet, no expand/collapse yet
+
+4. Options list (basic):
+   - Simple list of options
+   - Each shows: title, summary, composite score
+   - No score breakdown charts yet
+
+5. Recommendation view (basic):
+   - Show recommended option title
+   - Show rationale text
+   - Show confidence as text percentage
 
 CONSTRAINTS:
-- Use existing shadcn components
+- Use existing shadcn Card, Badge components
 - Loading states while data fetches
 - Empty states if analysis incomplete
 
 ACCEPTANCE CRITERIA:
 - Results page shows real data after analysis
-- All three tabs functional
-- Recommendation clearly presented
-- Evidence properly cited
+- All three tabs render with data
+- No errors in console
+- Build succeeds
 
 ⚠️ CANNOT FULLY TEST UNTIL: Full pipeline produces data
 ```
 
 | Task | Acceptance Criteria | Status |
-|------|---------------------|-------|--------|
-| 💻 Results page | Fetches real data | |
-| 💻 Evidence list | Shows evidence cards | |
-| 💻 Options list | Shows options with scores | |
-| 💻 Recommendation view | Shows recommendation | |
+|------|---------------------|--------|
+| 💻 Results page data fetch | Fetches all related data | |
+| 💻 Basic evidence list | Simple list renders | |
+| 💻 Basic options list | Simple list renders | |
+| 💻 Basic recommendation | Text displays | |
+
+---
+
+### 2.10.2 Polish Evidence List
+
+**Windsurf Prompt:**
+```
+GOAL: Enhance evidence list with filtering, expand/collapse, and visual polish.
+
+FILES TO UPDATE:
+- src/components/analyze/evidence-list.tsx
+
+BEHAVIOR:
+
+1. Add filter tabs at top:
+   - All (default)
+   - Supporting (relevance_assessment = 'supporting')
+   - Contradicting (relevance_assessment = 'contradicting')
+
+2. Each evidence card shows:
+   - Claim text (truncated to 2 lines)
+   - Source domain as badge
+   - Relevance score as small badge
+   - Freshness badge: "Fresh" if < 30 days, "Recent" if < 90 days, else "Older"
+   - Click to expand full snippet
+   - Link icon to open source URL
+
+3. Expand/collapse functionality:
+   - Collapsed: shows claim preview
+   - Expanded: shows full snippet, all scores
+
+CONSTRAINTS:
+- Use shadcn Tabs for filter
+- Use shadcn Collapsible for expand/collapse
+- Keep component under 150 lines
+
+ACCEPTANCE CRITERIA:
+- Filter tabs work correctly
+- Expand/collapse is smooth
+- Freshness badges display correctly
+- Source links open in new tab
+- Build succeeds
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Filter tabs | All/Supporting/Contradicting work | |
+| 💻 Expand/collapse | Smooth toggle | |
+| 💻 Freshness badges | Correct time-based display | |
+
+---
+
+### 2.10.3 Polish Options List
+
+**Windsurf Prompt:**
+```
+GOAL: Enhance options list with score visualization and evidence linking.
+
+FILES TO UPDATE:
+- src/components/analyze/options-list.tsx
+
+BEHAVIOR:
+
+1. Each option card shows:
+   - Title (larger text)
+   - Summary (2-3 lines)
+   - Composite score as prominent number (e.g., "78/100")
+   - "Recommended" badge on highest-scored option
+
+2. Score breakdown section:
+   - 6 horizontal progress bars for each factor:
+     - Evidence strength
+     - Execution feasibility
+     - Risk profile
+     - Time to value
+     - Resource efficiency
+     - Strategic alignment
+   - Each bar shows score 0-100
+
+3. Commits to / Deprioritizes:
+   - Small lists showing what this option commits to
+   - What it deprioritizes
+
+4. Evidence summary:
+   - "12 supporting, 3 contradicting" as text
+   - Click to expand linked evidence cards (use evidence mappings)
+
+CONSTRAINTS:
+- Use shadcn Progress for score bars
+- Use shadcn Badge for recommended indicator
+- Use shadcn Collapsible for evidence expansion
+
+ACCEPTANCE CRITERIA:
+- Recommended option visually highlighted
+- Score bars render correctly
+- Evidence expansion shows linked evidence
+- Build succeeds
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Score breakdown bars | 6 factors visualized | |
+| 💻 Recommended highlight | Badge on top option | |
+| 💻 Expandable evidence | Shows linked evidence | |
+
+---
+
+### 2.10.4 Polish Recommendation View
+
+**Windsurf Prompt:**
+```
+GOAL: Enhance recommendation view with confidence gauge and decision support.
+
+FILES TO UPDATE:
+- src/components/analyze/recommendation-view.tsx
+
+BEHAVIOR:
+
+1. Primary recommendation section:
+   - Recommended option title (large)
+   - Confidence as circular or horizontal gauge (0-100%)
+   - Confidence label: "Low" (<50), "Medium" (50-75), "High" (>75)
+
+2. Rationale section:
+   - Full rationale text
+   - Styled as callout/quote
+
+3. Hedge option (if exists):
+   - "Consider instead if..." header
+   - Hedge option title
+   - Hedge condition text
+
+4. Decision changers section:
+   - Header: "What would change this recommendation"
+   - List of cards, each showing:
+     - Change type (market, tech, regulatory, competitive, internal)
+     - Description text
+     - Icon based on type
+
+5. Monitor triggers section:
+   - Header: "Signals to watch"
+   - Simple list of trigger descriptions
+   - Each with monitoring timeframe
+
+CONSTRAINTS:
+- Use shadcn Progress for confidence gauge
+- Use shadcn Card for decision changers
+- Use lucide-react icons for change types
+
+ACCEPTANCE CRITERIA:
+- Confidence gauge displays correctly
+- Decision changers render as cards
+- Monitor triggers display as list
+- Hedge option shows only if exists
+- Build succeeds
+
+⚠️ CANNOT FULLY TEST UNTIL: Full pipeline produces data
+```
+
+| Task | Acceptance Criteria | Status |
+|------|---------------------|--------|
+| 💻 Confidence gauge | Visual display 0-100% | |
+| 💻 Decision changers | Cards with icons | |
+| 💻 Monitor triggers | List with timeframes | |
+| 💻 Hedge option | Conditional display | |
 
 ---
 
