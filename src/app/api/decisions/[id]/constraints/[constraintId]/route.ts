@@ -6,17 +6,17 @@ export async function DELETE(
   context: { params: Promise<{ id: string; constraintId: string }> }
 ) {
   const { id, constraintId } = await context.params
-  const auth = await requireOrgContext()
-  if (!auth.ok) {
-    return auth.errorResponse
+  const ctx = await requireOrgContext()
+  if (!ctx.ok) {
+    return ctx.errorResponse
   }
-  const { supabase } = auth
+  const { supabase, orgId } = ctx
 
   const { data: decision } = await supabase
     .from('decisions')
     .select('*')
     .eq('id', id)
-    .eq('org_id', auth.orgId)
+    .eq('org_id', orgId)
     .single()
 
   if (!decision) {

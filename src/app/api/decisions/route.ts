@@ -4,17 +4,17 @@ import { requireOrgContext } from '@/lib/auth/require-org-context'
 
 export async function GET() {
   try {
-    const auth = await requireOrgContext()
-    if (!auth.ok) {
-      return auth.errorResponse
+    const ctx = await requireOrgContext()
+    if (!ctx.ok) {
+      return ctx.errorResponse
     }
-    const { supabase } = auth
+    const { supabase, orgId } = ctx
 
     // Get decisions for user's org
     const { data: decisions, error } = await supabase
       .from('decisions')
       .select('*')
-      .eq('org_id', auth.orgId)
+      .eq('org_id', orgId)
       .order('updated_at', { ascending: false })
 
     if (error) {
@@ -32,11 +32,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const auth = await requireOrgContext()
-    if (!auth.ok) {
-      return auth.errorResponse
+    const ctx = await requireOrgContext()
+    if (!ctx.ok) {
+      return ctx.errorResponse
     }
-    const { supabase, user } = auth
+    const { supabase, orgId, user } = ctx
 
     const body: CreateDecisionBody = await request.json()
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         time_horizon: body.time_horizon,
         status: 'draft',
         analysis_status: 'draft',
-        org_id: auth.orgId,
+        org_id: orgId,
         owner_id: user.id,
       })
       .select()
