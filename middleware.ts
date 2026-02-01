@@ -53,23 +53,18 @@ export async function middleware(request: NextRequest) {
 
   // Authenticated user rules
   if (session) {
-    // Redirect from / or auth pages to /decisions
-    if (pathname === '/' || isPublicRoute(pathname)) {
-      return NextResponse.redirect(new URL('/decisions', request.url))
+    if (pathname === '/login' || pathname === '/signup') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
     return response
   }
 
   // Unauthenticated user rules
   if (!session) {
-    // Allow public routes
     if (isPublicRoute(pathname)) {
       return response
     }
-    // Redirect all protected routes to /
-    if (pathname !== '/') {
-      return NextResponse.redirect(new URL('/', request.url))
-    }
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return response
