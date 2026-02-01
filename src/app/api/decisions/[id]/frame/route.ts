@@ -16,8 +16,12 @@ const timeHorizons = [
   '2+_years',
 ] as const
 
-const isValidScore = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5
+const isValidScore = (value: unknown): value is number => {
+  if (typeof value !== 'number') {
+    return false
+  }
+  return Number.isInteger(value) && value >= 1 && value <= 5
+}
 
 export async function PATCH(
   request: NextRequest,
