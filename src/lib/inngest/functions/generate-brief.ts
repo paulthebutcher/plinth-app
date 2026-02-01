@@ -1,5 +1,5 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { inngest } from '../client'
+import { createServiceClient } from '@/lib/supabase/service'
 import { writeBrief, type FullDecision } from '@/lib/analysis/brief-writer'
 import type { Option } from '@/lib/analysis/option-composer'
 import type { OptionScore } from '@/lib/analysis/option-scorer'
@@ -44,24 +44,7 @@ export const generateBriefFunction = inngest.createFunction(
   }
 )
 
-const getServiceClient = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !serviceKey) {
-    throw new Error('Missing Supabase service role configuration')
-  }
-
-  return createServerClient(url, serviceKey, {
-    cookies: {
-      get() {
-        return undefined
-      },
-      set(_name: string, _value: string, _options: CookieOptions) {},
-      remove(_name: string, _options: CookieOptions) {},
-    },
-  })
-}
+const getServiceClient = () => createServiceClient()
 
 const fetchFullDecision = async (decisionId: string): Promise<FullDecision> => {
   const supabase = getServiceClient()

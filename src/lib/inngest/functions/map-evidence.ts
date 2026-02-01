@@ -1,5 +1,5 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { inngest } from '../client'
+import { createServiceClient } from '@/lib/supabase/service'
 import { mapEvidence, type EvidenceMapping } from '@/lib/analysis/evidence-mapper'
 import type { EvidenceCard } from '@/lib/analysis/evidence-generator'
 import type { Option } from '@/lib/analysis/option-composer'
@@ -42,24 +42,7 @@ export const mapEvidenceFunction = inngest.createFunction(
   }
 )
 
-const getServiceClient = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !serviceKey) {
-    throw new Error('Missing Supabase service role configuration')
-  }
-
-  return createServerClient(url, serviceKey, {
-    cookies: {
-      get() {
-        return undefined
-      },
-      set(_name: string, _value: string, _options: CookieOptions) {},
-      remove(_name: string, _options: CookieOptions) {},
-    },
-  })
-}
+const getServiceClient = () => createServiceClient()
 
 const fetchOptionsAndEvidence = async (decisionId: string) => {
   const supabase = getServiceClient()

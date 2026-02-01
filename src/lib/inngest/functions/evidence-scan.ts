@@ -1,6 +1,5 @@
-import { createServerClient } from '@supabase/ssr'
-import { type CookieOptions } from '@supabase/ssr'
 import { inngest } from '../client'
+import { createServiceClient } from '@/lib/supabase/service'
 import { planQueries } from '@/lib/analysis/query-planner'
 import { discoverUrls } from '@/lib/analysis/url-discovery'
 import { extractContent } from '@/lib/analysis/content-extractor'
@@ -66,24 +65,7 @@ export const evidenceScan = inngest.createFunction(
   }
 )
 
-const getServiceClient = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !serviceKey) {
-    throw new Error('Missing Supabase service role configuration')
-  }
-
-  return createServerClient(url, serviceKey, {
-    cookies: {
-      get() {
-        return undefined
-      },
-      set(_name: string, _value: string, _options: CookieOptions) {},
-      remove(_name: string, _options: CookieOptions) {},
-    },
-  })
-}
+const getServiceClient = () => createServiceClient()
 
 async function updateJobProgress(decisionId: string, progress: number, message: string) {
   const supabase = getServiceClient()
