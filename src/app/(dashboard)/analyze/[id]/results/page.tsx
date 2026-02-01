@@ -27,14 +27,16 @@ export default async function ResultsPage({
 
   const { data: evidenceRows } = await supabase
     .from('evidence')
-    .select('id, claim, source_url, source_title, confidence')
+    .select('id, claim, snippet, source_url, source_title, accessed_at, confidence')
     .eq('decision_id', id)
 
   const evidence = (evidenceRows ?? []).map((row: any) => ({
     id: row.id,
     claim: row.claim,
+    snippet: row.snippet ?? null,
     sourceUrl: row.source_url ?? null,
     sourceTitle: row.source_title ?? null,
+    extractedAt: row.accessed_at ?? null,
     relevanceScore:
       typeof row.confidence?.relevanceScore === 'number'
         ? row.confidence.relevanceScore
@@ -74,9 +76,9 @@ export default async function ResultsPage({
   const recommendedOptionTitle =
     options.find((option) => option.id === recommendationRow?.primary_option_id)?.title ?? null
 
-  await supabase
+  const { data: mappingRows } = await supabase
     .from('evidence_mappings')
-    .select('id')
+    .select('evidence_id, relationship, option_id')
     .eq('decision_id', id)
 
   await supabase
@@ -105,7 +107,15 @@ export default async function ResultsPage({
 
       <ResultsTabs
         decisionId={decision.id}
-        evidence={evidence}
+        evidence={evidence.map((card) => {
+          const mapping = mappingRows?.find(
+            (row: any) => row.evidence_id === card.id && row.option_id === recommendationRow?.primary_option_id
+          )
+          return {
+            ...card,
+            relevanceAssessment: mapping?.relationship ?? null,
+          }
+        })}
         options={options}
         recommendation={{
           optionTitle: recommendedOptionTitle,
