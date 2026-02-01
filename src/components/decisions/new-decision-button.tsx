@@ -40,14 +40,16 @@ export function NewDecisionButton({ onCreated }: NewDecisionButtonProps) {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create decision.')
+        const errorData = await response.json().catch(() => ({}))
+        const message = errorData?.error?.message || errorData?.error || 'Failed to create decision'
+        throw new Error(message)
       }
 
       const decision = (await response.json()) as Decision
       onCreated?.(decision)
       router.push(`/analyze/${decision.id}/frame`)
     } catch (err) {
-      setError('Unable to create decision. Please try again.')
+      setError(err instanceof Error ? err.message : 'Unable to create decision. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

@@ -42,9 +42,9 @@ const getDecisionHref = (decision: Decision, state: DecisionState) => {
     return `/analyze/${decision.id}/frame`
   }
   if (state === 'analyzed') {
-    return `/decisions/${decision.id}`
+    return `/analyze/${decision.id}/results`
   }
-  return `/analyze/${decision.id}/progress`
+  return `/analyze/${decision.id}/scanning`
 }
 
 const getProgress = (analysisStatus?: Decision['analysis_status']) => {
