@@ -2,7 +2,7 @@
 
 **Goal**: User can frame a decision and provide context. AI analysis pipeline ready to trigger.
 
-**Status**: ⏳ Not Started
+**Status**: ✅ Complete
 
 > **Architecture Reference**: See [CORE_JOURNEY.md](../../specs/CORE_JOURNEY.md) for the full 9-step flow.
 > **API Reference**: See [API_CONTRACTS.md](../../specs/API_CONTRACTS.md) for endpoint specifications.
