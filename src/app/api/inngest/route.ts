@@ -1,18 +1,24 @@
 import { serve } from 'inngest/next'
 import { inngest } from '@/lib/inngest/client'
-import { evidenceScan } from '@/lib/inngest/functions/evidence-scan'
-import { generateOptions } from '@/lib/inngest/functions/generate-options'
-import { mapEvidenceFunction } from '@/lib/inngest/functions/map-evidence'
-import { scoreOptionsFunction } from '@/lib/inngest/functions/score-options'
-import { generateRecommendationFunction } from '@/lib/inngest/functions/generate-recommendation'
+import {
+  analyzeDecision,
+  evidenceScan,
+  generateOptions,
+  mapEvidence,
+  scoreOptions,
+  generateRecommendation,
+  generateBrief,
+} from '@/lib/inngest/functions'
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
+    analyzeDecision,
     evidenceScan,
     generateOptions,
-    mapEvidenceFunction,
-    scoreOptionsFunction,
-    generateRecommendationFunction,
+    mapEvidence,
+    scoreOptions,
+    generateRecommendation,
+    generateBrief,
   ],
 })

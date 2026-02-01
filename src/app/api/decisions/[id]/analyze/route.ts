@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireOrgContext } from '@/lib/auth/require-org-context'
+import { inngest } from '@/lib/inngest/client'
 
 export async function POST(
   _request: NextRequest,
@@ -79,6 +80,11 @@ export async function POST(
       { status: 500 }
     )
   }
+
+  await inngest.send({
+    name: 'decision/analyze.requested',
+    data: { decisionId: decision.id, jobId: job.id },
+  })
 
   return NextResponse.json({ data: { jobId: job.id, status: 'started' } })
 }
