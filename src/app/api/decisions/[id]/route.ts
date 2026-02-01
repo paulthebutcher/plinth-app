@@ -1,45 +1,22 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireOrgContext } from '@/lib/auth/require-org-context'
 
 export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
+  const auth = await requireOrgContext()
+  if (!auth.ok) {
+    return auth.errorResponse
   }
-
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (userError || !userData) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
-  }
-
-  if (!userData.org_id) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
-  }
+  const { supabase } = auth
 
   const { data: decision } = await supabase
     .from('decisions')
     .select('*')
     .eq('id', id)
-    .eq('org_id', userData.org_id)
+    .eq('org_id', auth.orgId)
     .single()
 
   if (!decision) {
@@ -57,40 +34,17 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
+  const auth = await requireOrgContext()
+  if (!auth.ok) {
+    return auth.errorResponse
   }
-
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (userError || !userData) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
-  }
-
-  if (!userData.org_id) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
-  }
+  const { supabase } = auth
 
   const { data: decision } = await supabase
     .from('decisions')
     .select('*')
     .eq('id', id)
-    .eq('org_id', userData.org_id)
+    .eq('org_id', auth.orgId)
     .single()
 
   if (!decision) {
@@ -143,40 +97,17 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   const { id } = await context.params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
+  const auth = await requireOrgContext()
+  if (!auth.ok) {
+    return auth.errorResponse
   }
-
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
-
-  if (userError || !userData) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
-  }
-
-  if (!userData.org_id) {
-    return NextResponse.json(
-      { error: { code: 'unauthorized', message: 'Not authenticated' } },
-      { status: 401 }
-    )
-  }
+  const { supabase } = auth
 
   const { data: decision } = await supabase
     .from('decisions')
     .select('*')
     .eq('id', id)
-    .eq('org_id', userData.org_id)
+    .eq('org_id', auth.orgId)
     .single()
 
   if (!decision) {

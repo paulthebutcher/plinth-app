@@ -1,33 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { type CreateDecisionBody } from '@/types/decision'
+import { requireOrgContext } from '@/lib/auth/require-org-context'
 
 export async function GET() {
   try {
-    const supabase = await createClient()
-    
-    // Get current user and verify auth
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await requireOrgContext()
+    if (!auth.ok) {
+      return auth.errorResponse
     }
-
-    // Get user's org_id
-    const { data: userData } = await supabase
-      .from('users')
-      .select('org_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData?.org_id) {
-      return NextResponse.json({ error: 'User has no organization' }, { status: 400 })
-    }
+    const { supabase } = auth
 
     // Get decisions for user's org
     const { data: decisions, error } = await supabase
       .from('decisions')
       .select('*')
-      .eq('org_id', userData.org_id)
+      .eq('org_id', auth.orgId)
       .order('updated_at', { ascending: false })
 
     if (error) {
@@ -45,24 +32,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    
-    // Get current user and verify auth
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const auth = await requireOrgContext()
+    if (!auth.ok) {
+      return auth.errorResponse
     }
-
-    // Get user's org_id
-    const { data: userData } = await supabase
-      .from('users')
-      .select('org_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData?.org_id) {
-      return NextResponse.json({ error: 'User has no organization' }, { status: 400 })
-    }
+    const { supabase, user } = auth
 
     const body: CreateDecisionBody = await request.json()
 
@@ -75,7 +49,7 @@ export async function POST(request: Request) {
         time_horizon: body.time_horizon,
         status: 'draft',
         analysis_status: 'draft',
-        org_id: userData.org_id,
+        org_id: auth.orgId,
         owner_id: user.id,
       })
       .select()
