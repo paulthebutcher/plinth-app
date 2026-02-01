@@ -70,7 +70,7 @@ export function DecisionCard({ decision }: { decision: Decision }) {
   return (
     <Link
       href={href}
-      className="block rounded-lg border bg-background p-5 transition hover:border-foreground-muted"
+      className="block rounded-xl border border-border bg-background p-5 shadow-sm transition hover:border-foreground-muted hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-lg font-medium">{decision.title || 'Untitled decision'}</h3>

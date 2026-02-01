@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { DecisionList } from '@/components/decisions/decision-list'
 import { NewDecisionButton } from '@/components/decisions/new-decision-button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { type Decision } from '@/types/decision'
 
 export default function DashboardPage() {
@@ -42,23 +43,31 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-h2 font-semibold">Decisions</h1>
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold text-foreground">Decisions</h1>
           <p className="text-sm text-foreground-muted">
             Track and analyze your most important strategic choices.
           </p>
         </div>
-        <NewDecisionButton onCreated={(decision) => setDecisions((prev) => [decision, ...prev])} />
+        <div className="flex items-center gap-3">
+          <NewDecisionButton
+            onCreated={(decision) => setDecisions((prev) => [decision, ...prev])}
+          />
+        </div>
       </div>
 
       {error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <DecisionList decisions={decisions} isLoading={isLoading} />
+      <DecisionList
+        decisions={decisions}
+        isLoading={isLoading}
+        onCreated={(decision) => setDecisions((prev) => [decision, ...prev])}
+      />
     </div>
   )
 }

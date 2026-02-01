@@ -82,6 +82,16 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  a {
+    color: var(--foreground);
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  a:hover {
+    color: var(--foreground-muted);
+  }
+
   html {
     scroll-behavior: smooth;
   }

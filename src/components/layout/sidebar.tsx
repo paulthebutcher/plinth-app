@@ -13,30 +13,30 @@ export function Sidebar() {
 
   return (
     <div className="w-64 border-r bg-background-subtle/40">
-      <div className="flex h-14 items-center border-b px-4">
-        <span className="font-semibold text-foreground">Plinth</span>
+      <div className="flex h-16 items-center border-b px-4">
+        <span className="text-lg font-semibold text-foreground">Plinth</span>
       </div>
-      <nav className="space-y-1 p-2">
+      <nav className="space-y-1 p-3">
         <Link
           href="/dashboard"
-          className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+          className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
             isActive('/dashboard')
-              ? 'bg-primary text-primary-foreground'
+              ? 'bg-primary/10 text-primary'
               : 'text-foreground-muted hover:bg-background-muted hover:text-foreground'
           }`}
         >
-          <LayoutGrid className="h-4 w-4" />
+          <LayoutGrid className="h-5 w-5" />
           <span>Decisions</span>
         </Link>
         <Link
           href="/settings/profile"
-          className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+          className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
             isActive('/settings')
-              ? 'bg-primary text-primary-foreground'
+              ? 'bg-primary/10 text-primary'
               : 'text-foreground-muted hover:bg-background-muted hover:text-foreground'
           }`}
         >
-          <Settings className="h-4 w-4" />
+          <Settings className="h-5 w-5" />
           <span>Settings</span>
         </Link>
       </nav>

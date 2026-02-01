@@ -67,7 +67,10 @@ export function NewDecisionButton({ onCreated }: NewDecisionButtonProps) {
           Analyze a Decision
         </Button>
       ) : (
-        <form onSubmit={handleSubmit} className="rounded-lg border bg-background p-4 shadow-sm">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border border-border bg-background p-5 shadow-sm"
+        >
           <div className="flex items-start justify-between gap-2">
             <div>
               <Label htmlFor="decision-title">Decision title</Label>
