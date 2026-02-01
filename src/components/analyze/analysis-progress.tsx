@@ -63,7 +63,8 @@ export function AnalysisProgress({ currentStep, analysisStatus }: AnalysisProgre
   const pathname = usePathname()
   const params = useParams<{ id: string }>()
   const derivedStep = getStepFromPath(pathname)
-  const activeStep = derivedStep ?? currentStep
+  const rawStep = derivedStep ?? currentStep
+  const activeStep = rawStep === 'results' ? 'recommendation' : rawStep
 
   const statusRank = Math.max(statusOrder.indexOf(analysisStatus), 0)
 
