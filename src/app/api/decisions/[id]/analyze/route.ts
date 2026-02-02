@@ -28,6 +28,10 @@ export async function POST(
   }
 
   if (!decision.decision_frame?.trim() || !decision.decision_type) {
+    console.log('[analyze] Validation failed:', {
+      decision_frame: decision.decision_frame,
+      decision_type: decision.decision_type
+    })
     return NextResponse.json(
       { error: { code: 'validation_error', message: 'Decision frame and type required' } },
       { status: 400 }
@@ -35,13 +39,17 @@ export async function POST(
   }
 
   const currentStatus = decision.analysis_status ?? 'draft'
-  const allowedStatuses = ['draft', 'framing', 'context', 'complete']
-  if (!allowedStatuses.includes(currentStatus)) {
+  // Allow re-running from any status except active processing states
+  const blockedStatuses = ['generating_options', 'mapping', 'scoring', 'recommending', 'generating_brief']
+  if (blockedStatuses.includes(currentStatus)) {
+    console.log('[analyze] Status conflict:', { currentStatus, blockedStatuses })
     return NextResponse.json(
       { error: { code: 'conflict', message: 'Analysis already in progress' } },
       { status: 400 }
     )
   }
+
+  console.log('[analyze] Starting analysis:', { decisionId: id, currentStatus })
 
   const { data: job, error: jobError } = await supabase
     .from('jobs')
