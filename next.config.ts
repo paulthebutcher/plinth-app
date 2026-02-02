@@ -2,10 +2,7 @@ import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
-  // Enable instrumentation hook for Sentry
-  experimental: {
-    instrumentationHook: true,
-  },
+  // Config options here
 }
 
 export default withSentryConfig(nextConfig, {
