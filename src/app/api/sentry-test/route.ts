@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 
 export async function GET() {
-  throw new Error('Sentry test error - this is intentional!')
+  const error = new Error('Sentry test error - this is intentional!')
+  Sentry.captureException(error)
+  return NextResponse.json({ error: 'Test error sent to Sentry' }, { status: 500 })
 }
 
 export async function POST() {
-  // This endpoint can be used to test Sentry without throwing
-  // Just returns success
-  return NextResponse.json({ status: 'Sentry is configured' })
+  Sentry.captureMessage('Sentry test message - this is intentional!', 'info')
+  return NextResponse.json({ status: 'Test message sent to Sentry' })
 }
