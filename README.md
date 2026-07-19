@@ -51,3 +51,4 @@ See [FOLDER_STRUCTURE.md](docs/architecture/FOLDER_STRUCTURE.md) for detailed do
 ## License
 
 Copyright © 2026 Paul Butcher. All rights reserved.
+# plinth-sol
